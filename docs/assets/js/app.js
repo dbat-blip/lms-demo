@@ -32,12 +32,16 @@
     init();
   
     async function init() {
-        state.templateHtml = await loadTemplate();
-        state.lmsCss = await loadLmsCss();
-        bindInputs();
-        renderBlockPicker();
-        renderAll();
-      }
+      state.templateHtml = await loadTemplate();
+      state.lmsCss = await loadLmsCss();
+    
+      const subtitle = document.querySelector(".app-subtitle");
+      if (subtitle) subtitle.textContent = state.lmsCss ? "LMS CSS loaded" : "LMS CSS NOT loaded";
+    
+      bindInputs();
+      renderBlockPicker();
+      renderAll();
+    }
   
     function bindInputs() {
       [
