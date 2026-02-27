@@ -173,7 +173,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="./assets/css/contentbuilder5.css">
+  <link rel="stylesheet" href="./docs/assets/css/contentbuilder5.css">
   <style>${exportStyle}</style>
 </head>
 <body>
