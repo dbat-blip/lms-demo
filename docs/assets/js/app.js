@@ -173,7 +173,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>${state.lmsCss || ""}</style>
+  <link rel="stylesheet" href="./assets/css/contentbuilder5.css">
   <style>${exportStyle}</style>
 </head>
 <body>
@@ -345,18 +345,7 @@
         return `<div class="lmsdemo"><style>{{STYLE}}</style><div class="lmsdemo-wrap">{{CONTENT}}</div></div>`;
       }
     }
- async function loadLmsCss() {
-  const path = "./assets/css/contentbuilder5.css";
-  try {
-    const res = await fetch(path, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const css = await res.text();
-    return css;
-  } catch (e) {
-    console.warn("Could not load LMS CSS:", path, e);
-    return "";
-  }
-}
+
   
     async function copyOutput() {
       const text = els.output.value || "";
