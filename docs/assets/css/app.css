@@ -107,14 +107,14 @@
   .block-row__label{ font-size:13px; color:var(--ui-text); }
   .block-row__right{ display:flex; gap:8px; }
   
-  .preview-frame{
-    width:100%;
-    min-height: 420px;
-    border:0;
-    border-radius:12px;
-    background:#ffffff;
-    overflow:hidden;
-  }
+.preview-frame{
+  width:100%;
+  min-height:420px;
+  border:0;
+  border-radius:12px;
+  background:#ffffff;
+  display:block;
+}
   
   .output{
     width:100%;
