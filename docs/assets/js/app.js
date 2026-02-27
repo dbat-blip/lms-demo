@@ -129,42 +129,61 @@
       return btn;
     }
   
-    function renderAll() {
-      const html = assembleContentHtml();
-      const style = buildExportCss();
-  
-      const exportHtml = state.templateHtml
-        .replace("{{STYLE}}", style)
-        .replace("{{CONTENT}}", html);
-  
-      els.output.value = exportHtml;
-  
-      // Preview: render with the same CSS in-place
-      renderPreviewFrame(style, html);
-      
-      function renderPreviewFrame(exportStyle, contentHtml) {
-        const iframe = els.previewFrame;
-        if (!iframe) return;
-      
-        // Use an HTML document that mimics the LMS environment
-        const docHtml = `<!doctype html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <style>${state.lmsCss || ""}</style>
-        <style>${exportStyle}</style>
-      </head>
-      <body>
-        ${contentHtml}
-      </body>
-      </html>`;
-      
-        // srcdoc is simplest + works well for static Pages previews
-        iframe.srcdoc = docHtml;
-      }
-    }
-    
+   function renderAll() {
+  const content = assembleContentHtml();
+  const style = buildExportCss();
+
+  const exportHtml = state.templateHtml
+    .replace("{{STYLE}}", style)
+    .replace("{{CONTENT}}", content);
+
+  els.output.value = exportHtml;
+
+  // Preview (iframe)
+  renderPreviewFrame(style, content);
+}
+    function renderPreviewFrame(exportStyle, contentHtml) {
+  const iframe = els.previewFrame;
+  if (!iframe) return;
+
+  const hasBlocks = Boolean(contentHtml && contentHtml.trim());
+  const lmsCssStatus = state.lmsCss && state.lmsCss.trim()
+    ? `Loaded contentbuilder5.css (${state.lmsCss.length} chars)`
+    : "contentbuilder5.css NOT loaded";
+
+  // Wrap the generated content in the same wrapper your export uses
+  const wrapped = `
+<div class="lmsdemo">
+  <div class="lmsdemo-wrap">
+    ${hasBlocks ? contentHtml : `<div style="padding:16px;font-family:system-ui;">Preview is empty. Enable at least one block.</div>`}
+  </div>
+</div>`;
+
+  // NOTE: We include LMS CSS only in preview, not export.
+  // Add a tiny debug banner so we can see status even on iPhone.
+  const debugBanner = `
+<div style="position:sticky;top:0;z-index:9999;
+            font-family:system-ui;font-size:12px;
+            background:#111827;color:#fff;padding:8px 10px;">
+  Preview: ${lmsCssStatus}
+</div>`;
+
+  const docHtml = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>${state.lmsCss || ""}</style>
+  <style>${exportStyle}</style>
+</head>
+<body>
+  ${debugBanner}
+  ${wrapped}
+</body>
+</html>`;
+
+  iframe.srcdoc = docHtml;
+}
   
     function assembleContentHtml() {
       const data = {
@@ -326,16 +345,18 @@
         return `<div class="lmsdemo"><style>{{STYLE}}</style><div class="lmsdemo-wrap">{{CONTENT}}</div></div>`;
       }
     }
-    async function loadLmsCss() {
-        try {
-          const res = await fetch("./assets/css/contentbuilder5.css", { cache: "no-store" });
-          if (!res.ok) throw new Error("LMS CSS fetch failed");
-          return await res.text();
-        } catch {
-          // If the file isn’t present yet, preview still works, just not LMS-accurate
-          return "";
-        }
-      }
+ async function loadLmsCss() {
+  const path = "./assets/css/contentbuilder5.css";
+  try {
+    const res = await fetch(path, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const css = await res.text();
+    return css;
+  } catch (e) {
+    console.warn("Could not load LMS CSS:", path, e);
+    return "";
+  }
+}
   
     async function copyOutput() {
       const text = els.output.value || "";
