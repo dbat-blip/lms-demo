@@ -8,7 +8,7 @@
       heroSubhead: document.getElementById("heroSubhead"),
       heroImageUrl: document.getElementById("heroImageUrl"),
       blockList: document.getElementById("blockList"),
-      preview: document.getElementById("preview"),
+      previewFrame: document.getElementById("previewFrame"),
       output: document.getElementById("output"),
       btnCopy: document.getElementById("btnCopy"),
       btnReset: document.getElementById("btnReset"),
@@ -26,16 +26,18 @@
       enabled: Object.fromEntries(blocks.map(b => [b.id, !!b.defaultEnabled])),
       order: blocks.map(b => b.id),
       templateHtml: "",
+      lmsCss: "",
     };
   
     init();
   
     async function init() {
-      state.templateHtml = await loadTemplate();
-      bindInputs();
-      renderBlockPicker();
-      renderAll();
-    }
+        state.templateHtml = await loadTemplate();
+        state.lmsCss = await loadLmsCss();
+        bindInputs();
+        renderBlockPicker();
+        renderAll();
+      }
   
     function bindInputs() {
       [
@@ -134,12 +136,31 @@
       els.output.value = exportHtml;
   
       // Preview: render with the same CSS in-place
-      els.preview.innerHTML = `
-        <div class="lmsdemo">
-          <style>${style}</style>
-          <div class="lmsdemo-wrap">${html}</div>
-        </div>`;
+      renderPreviewFrame(style, html);
+      
+      function renderPreviewFrame(exportStyle, contentHtml) {
+        const iframe = els.previewFrame;
+        if (!iframe) return;
+      
+        // Use an HTML document that mimics the LMS environment
+        const docHtml = `<!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <style>${state.lmsCss || ""}</style>
+        <style>${exportStyle}</style>
+      </head>
+      <body>
+        ${contentHtml}
+      </body>
+      </html>`;
+      
+        // srcdoc is simplest + works well for static Pages previews
+        iframe.srcdoc = docHtml;
+      }
     }
+    
   
     function assembleContentHtml() {
       const data = {
@@ -301,6 +322,16 @@
         return `<div class="lmsdemo"><style>{{STYLE}}</style><div class="lmsdemo-wrap">{{CONTENT}}</div></div>`;
       }
     }
+    async function loadLmsCss() {
+        try {
+          const res = await fetch("./assets/css/contentbuilder5.css", { cache: "no-store" });
+          if (!res.ok) throw new Error("LMS CSS fetch failed");
+          return await res.text();
+        } catch {
+          // If the file isn’t present yet, preview still works, just not LMS-accurate
+          return "";
+        }
+      }
   
     async function copyOutput() {
       const text = els.output.value || "";
