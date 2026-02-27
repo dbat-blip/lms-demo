@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LMS Demo Page Builder</title>
+
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__left">
+      <div class="app-title">LMS Demo Page Builder</div>
+      <div class="app-subtitle">Pick blocks, set client branding, export paste-ready HTML</div>
+    </div>
+
+    <div class="app-header__right">
+      <button id="btnCopy" class="btn btn-primary" type="button">Copy HTML</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel">
+      <h2>Client + branding</h2>
+
+      <div class="field">
+        <label for="clientName">Client name</label>
+        <input id="clientName" type="text" placeholder="Acme Manufacturing" />
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="primaryColor">Primary color</label>
+          <input id="primaryColor" type="text" value="#254677" />
+          <div class="hint">Hex recommended (e.g., #254677)</div>
+        </div>
+
+        <div class="field">
+          <label for="accentColor">Accent color</label>
+          <input id="accentColor" type="text" value="#55baea" />
+          <div class="hint">Used for highlights and chips</div>
+        </div>
+      </div>
+
+      <hr />
+
+      <h2>Hero</h2>
+
+      <div class="field">
+        <label for="heroHeadline">Headline</label>
+        <input id="heroHeadline" type="text" value="Training that holds up in an audit" />
+      </div>
+
+      <div class="field">
+        <label for="heroSubhead">Subhead</label>
+        <textarea id="heroSubhead" rows="3">This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.</textarea>
+      </div>
+
+      <div class="field">
+        <label for="heroImageUrl">Hero image URL (optional)</label>
+        <input id="heroImageUrl" type="text" placeholder="https://..." />
+      </div>
+
+      <hr />
+
+      <h2>Blocks</h2>
+      <div id="blockList" class="block-list"></div>
+
+      <div class="panel-actions">
+        <button id="btnReset" class="btn" type="button">Reset to defaults</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Preview</h2>
+      <div id="preview" class="preview"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Generated HTML</h2>
+      <div class="hint">Paste this into the LMS HTML editor.</div>
+      <textarea id="output" class="output" spellcheck="false"></textarea>
+    </section>
+  </main>
+
+  <script src="./assets/js/blocks.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
