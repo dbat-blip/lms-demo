@@ -803,6 +803,7 @@ function renderAll() {
       color: #4b5563;
       position: relative;
       line-height: 1.5;
+      margin-top: 10px;
     }
     .empty-state__steps li::before {
       content: attr(data-step);
