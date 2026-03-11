@@ -859,7 +859,8 @@ function renderAll() {
     <div class="empty-state__title">Best practices</div>
     <ul class="best-practice__steps">
       <li data-step="1">Determine if this is a landing page or a secondary page. A landing page would use a hero. Secondary pages typically don't, use the Banner w/ CTA as header</li>
-      <li data-step="2">Don't overload your page. Determine what the purpose of the page is and what speaks to that. Mix up your block selections to keep the page interesting</li>
+      <li data-step="2">Don't overload your page. Determine your purpose and build for that. Mix up your block selections to keep the page interesting</li>
+      <li data-step="3">Get creative. Change the wording in sections to meet your needs. The LMS editor makes that easy</li>
     </ul>
     <div class="empty-state__hint">
       The preview will appear here once you select at least one block. 
