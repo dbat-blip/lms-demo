@@ -99,7 +99,34 @@
 		    `.trim(),
 		},
 
+        {
+			id: "myLearningAndSnapshot",
+			name: "My Learning + Daily Snapshot Split",
+			defaultEnabled: false,
+			html: `
+            <div class="row" data-section-id="my-learning-snapshot">
+                <div class="column two-third">
+                    <div class="gadget-block">
+                        <p class="show-editor-only">Training Dashboard Gadget</p>
+                        <training-dashboard></training-dashboard>
+                    </div>
+                </div>
+                <div class="column third">
+                    <div class="gadget-block">
+                    <p class="show-editor-only">Daily Snapshot Gadget</p>
+                    <daily-snapshot></daily-snapshot>
+                    </div>
+                </div>
+            </div>
 
+            <div class="row" data-section-id="spacer-40">
+                <div class="column">
+                    <div class="spacer height-40"></div>
+                </div>
+            </div>
+      `.trim(),
+		},
+        
 		{
 			id: "learnByRole",
 			name: "Learn by Role",
@@ -445,6 +472,7 @@
 </div>
       `.trim(),
 		},
+        
 /*** FEATURED SPLIT
  ***/   
 		{
@@ -723,46 +751,7 @@
   `.trim(),
 		},
 
-/*** FAQ ACCORDION
- ***/   
-        {
-            id: "faqAccordion",
-            name: "FAQ Accordion",
-            defaultEnabled: false,
-            getHtml() {
-            const items = (window.state?.faqItems || [])
-                .map((item, i) => `
-                <div class="faq-item">
-                    <input class="faq-toggle" type="checkbox" id="faq-${i + 1}">
-                    <label class="faq-question" for="faq-${i + 1}">${item.question || ""}</label>
-                    <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        <p>${(item.answer || "").replace(/\n/g, "<br>")}</p>
-                    </div>
-                    </div>
-                </div>
-                `).join("");
-        
-            return `
-                <div class="row" data-section-id="faq-accordion">
-                <div class="column sectionheadline">
-                    <h2>Frequently Asked Questions</h2>
-                    <p>Quick answers to common questions.</p>
-                </div>
-                </div>
-                <div class="row">
-                <div class="column">
-                    ${items}
-                </div>
-                </div>
-                <div class="row" data-section-id="spacer-40">
-                <div class="column">
-                    <div class="spacer height-40"></div>
-                </div>
-                </div>
-            `.trim();
-            },
-        },
+
 
         {
             id: "videoAndSnapshot",
@@ -788,33 +777,7 @@
             `.trim(),
           },
 
-		{
-			id: "myLearningAndSnapshot",
-			name: "My Learning + Daily Snapshot Split",
-			defaultEnabled: false,
-			html: `
-            <div class="row" data-section-id="my-learning-snapshot">
-                <div class="column two-third">
-                    <div class="gadget-block">
-                        <p class="show-editor-only">Training Dashboard Gadget</p>
-                        <training-dashboard></training-dashboard>
-                    </div>
-                </div>
-                <div class="column third">
-                    <div class="gadget-block">
-                    <p class="show-editor-only">Daily Snapshot Gadget</p>
-                    <daily-snapshot></daily-snapshot>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row" data-section-id="spacer-40">
-                <div class="column">
-                    <div class="spacer height-40"></div>
-                </div>
-            </div>
-      `.trim(),
-		},
+		
         {
             id: "splitHalf",
             name: "Split — 50/50",
@@ -856,6 +819,46 @@
           </div>
             `.trim(),
           },
+        /*** FAQ ACCORDION
+         ***/   
+        {
+            id: "faqAccordion",
+            name: "FAQ Accordion",
+            defaultEnabled: false,
+            getHtml() {
+            const items = (window.state?.faqItems || [])
+                .map((item, i) => `
+                <div class="faq-item">
+                    <input class="faq-toggle" type="checkbox" id="faq-${i + 1}">
+                    <label class="faq-question" for="faq-${i + 1}">${item.question || ""}</label>
+                    <div class="faq-answer">
+                    <div class="faq-answer-inner">
+                        <p>${(item.answer || "").replace(/\n/g, "<br>")}</p>
+                    </div>
+                    </div>
+                </div>
+                `).join("");
+
+            return `
+                <div class="row" data-section-id="faq-accordion">
+                <div class="column sectionheadline">
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Quick answers to common questions.</p>
+                </div>
+                </div>
+                <div class="row">
+                <div class="column">
+                    ${items}
+                </div>
+                </div>
+                <div class="row" data-section-id="spacer-40">
+                <div class="column">
+                    <div class="spacer height-40"></div>
+                </div>
+                </div>
+            `.trim();
+            },
+        },
 	];
     
 
