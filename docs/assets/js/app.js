@@ -73,7 +73,7 @@
       label: "Core",
       tooltip: "An example of what could go into a secondary page. Add or remove sections as need",
       sections: [
-        "bannerCta",
+        "bannerHero",
         "quickAccess",
         "faqAccordion",
       ],
