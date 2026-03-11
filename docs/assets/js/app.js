@@ -1018,7 +1018,7 @@ function renderAll() {
     
     // Icon color override
     const iconColorCss = state.enabled["essentialIcon"] && sanitizeColor(state.iconColor, "")
-      ? `\n\n/* Icon color override */\n.card_box_icon svg { color: ${sanitizeColor(state.iconColor, "")} !important; }`
+      ? `\n\n/* Icon color override */\n.card_box_icon svg path { color: ${sanitizeColor(state.iconColor, "")} !important; }`
       : "";
 
     return `${vars}\n\n${UNIVERSAL_CSS}${flatCss}${iconColorCss}`.trim();
