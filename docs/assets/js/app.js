@@ -854,7 +854,7 @@ function renderAll() {
       <li data-step="2">Set brand colors</li>
       <li data-step="3">Enter hero image URL if applicable. Imgbox is a great host</li>
       <li data-step="4">Check the blocks you want to include. Some have additional customization options</li>
-      <li data-step="5">Click <strong>Copy HTML</strong> to paste into an HTML page in the LMS</li>
+      <li data-step="5">Click <strong>Copy HTML</strong> to paste into a custom page in the LMS</li>
     </ol>
     <div class="empty-state__title">Best practices</div>
     <ul class="best-practice__steps">
