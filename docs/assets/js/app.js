@@ -785,6 +785,7 @@ function renderAll() {
       color: #1a1a1a;
       margin-bottom: 12px;
       line-height: 1.3;
+      text-align: left;
     }
     .empty-state__steps {
       list-style: none;
