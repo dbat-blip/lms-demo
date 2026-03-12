@@ -512,7 +512,7 @@
                 name: "Featured — Split Filled",
                 defaultEnabled: false,
                 html: `
-            <div class="row" data-section-id="featured-split" style="align-items: center;">
+            <div class="row" data-section-id="featured-split" id="featured-split">
             <div class="column featuredsingle featuredsingle-filled">
             <div class="row">
             <div class="column">
