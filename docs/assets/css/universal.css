@@ -727,5 +727,5 @@
 	color: var(--brandColor)
   }
   .card_box_icon svg path {
-    fill: var(--brandColor) !important;
+    fill: var(--brandColor);
 }
