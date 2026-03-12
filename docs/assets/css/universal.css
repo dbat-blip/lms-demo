@@ -6,7 +6,7 @@
 	:root{
 	  --textColor:#212427;
 	  --white:#fff;
-	  --border:#eee;
+	  --border:#e5e5e5;
 	  --shadow:rgb(0 0 0 / 6%);
 
 	  /* Derived overlays from your two inputs */
@@ -289,6 +289,10 @@
 	  border:1px solid var(--border);
 	  border-radius:10px;
 	  overflow:hidden;
+	}
+	.featuredsingle-filled{
+		border: solid 1px var(--border) !important;
+    	background-color: #f9f9f9;
 	}
 
 	.featuredsingle span{

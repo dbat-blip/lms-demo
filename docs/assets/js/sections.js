@@ -472,7 +472,7 @@
 </div>
       `.trim(),
 		},
-        
+
 /*** FEATURED SPLIT
  ***/   
 		{
@@ -480,7 +480,7 @@
 			name: "Featured — Split",
 			defaultEnabled: false,
 			html: `
-<div class="row" data-section-id="featured-split">
+<div class="row" data-section-id="featured-split" style="align-items: center;">
   <div class="column featuredsingle no-border">
     <div class="row">
       <div class="column">
@@ -504,6 +504,38 @@
 </div>
       `.trim(),
 		},
+
+/*** FEATURED SPLIT
+ ***/   
+        {
+                id: "featuredSplitFilled",
+                name: "Featured — Split Filled",
+                defaultEnabled: false,
+                html: `
+            <div class="row" data-section-id="featured-split" style="align-items: center;">
+            <div class="column featuredsingle featuredsingle-filled">
+            <div class="row">
+            <div class="column">
+            <a href="{{featured.href}}"><img src="{{featured.imageUrl}}" alt=""></a>
+            </div>
+            <div class="column featsinglecont">
+            <span>{{featured.eyebrow}}</span>
+            <h2>{{featured.title}}</h2>
+            <p>{{featured.description}}</p>
+            <div class="btn-rightcontainer text-left">
+            <a href="{{featured.ctaUrl}}" class="btn-right">{{featured.ctaText}}</a>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            <div class="row" data-section-id="spacer-40">
+            <div class="column">
+            <div class="spacer height-40"></div>
+            </div>
+            </div>
+            `.trim(),
+        },
 
 /*** RESOURCE HUB
  ***/   
