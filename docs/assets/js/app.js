@@ -387,7 +387,7 @@
   function evaluateWarnings() {
     const prev    = new Set(warningState.active);
     const next    = new Set();
-    const heroIds = ["heroSplit", "heroOverlay", "bannerHero"];
+    const heroIds = ["heroSplit", "heroOverlay"];
 
     // Two heroes
     const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
