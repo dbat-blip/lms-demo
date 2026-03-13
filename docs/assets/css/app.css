@@ -502,19 +502,15 @@
   /* ============================================================
      EDITOR MOUNTS
      ============================================================ */
-  #faqEditor,
-  #iconEditor,
-  #heroEditor,
-  #videoEditor,
-  #splitHalfEditor,
-  #splitThirdEditor {
-    margin-left: 15px;
-  }
-  
-  /* Tile editors — one per multi-tile section, same indent */
-  [id^="tileEditor-"] {
-    margin-left: 15px;
-  }
+     #faqEditor,
+     #iconEditor,
+     #heroEditor,
+     #videoEditor,
+     #splitHalfEditor,
+     #splitThirdEditor,
+     [id^="tileEditor-"] {
+       margin-left: 30px;
+     }
   
   /* ============================================================
      FAQ EDITOR

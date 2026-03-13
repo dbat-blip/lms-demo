@@ -293,6 +293,8 @@
 	.featuredsingle-filled{
 		border: solid 1px var(--border) !important;
     	background-color: #f9f9f9;
+		margin: 1rem;
+    	padding: 2rem;
 	}
 
 	.featuredsingle span{
