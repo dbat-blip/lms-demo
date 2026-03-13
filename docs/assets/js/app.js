@@ -388,50 +388,43 @@
     const prev    = new Set(warningState.active);
     const next    = new Set();
     const heroIds = ["heroSplit", "heroOverlay"];
-
+  
+    const defaultPrimary = "#37352a";
+    const defaultAccent  = "#ff7a52";
+  
+    // Two heroes
+    const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
+    if (enabledHeroes.length > 1) next.add("twoHeroes");
+  
+    // Placeholder tiles
+    Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
+      const count        = state.tileCounts[id] ?? cfg.default;
+      const industryData = getIndustryData();
+      const source       = resolveToken(cfg.dataKey, industryData);
+      const dataCount    = Array.isArray(source) ? source.length : 0;
+      if (state.enabled[id] && count > dataCount) next.add("placeholderTiles");
+    });
+  
+    // Default colors — only warn if at least one section is enabled
     const anySectionEnabled = state.order.some((id) => state.enabled[id]);
     if (
       anySectionEnabled &&
       (!state.primaryColor || state.primaryColor === defaultPrimary) &&
       (!state.accentColor  || state.accentColor  === defaultAccent)
     ) next.add("defaultColors");
-    
-    // Two heroes
-    const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
-    if (enabledHeroes.length > 1) next.add("twoHeroes");
-
-    // Placeholder tiles — any enabled tile section with count > industry data coverage
-    Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
-      const count       = state.tileCounts[id] ?? cfg.default;
-      const industryData = getIndustryData();
-      const source       = resolveToken(cfg.dataKey, industryData);
-      const dataCount    = Array.isArray(source) ? source.length : 0;
-      if (state.enabled[id] && count > dataCount) next.add("placeholderTiles");
-    });
-
-    // Default colors
-    const defaultPrimary = "#37352a";
-    const defaultAccent  = "#ff7a52";
-    if (
-      (!state.primaryColor || state.primaryColor === defaultPrimary) &&
-      (!state.accentColor  || state.accentColor  === defaultAccent)
-    ) next.add("defaultColors");
-
+  
     // Check if any NEW warnings appeared
     const hasNew = [...next].some((id) => !prev.has(id));
-
     warningState.active = next;
-
-    // Reopen panel if there are new warnings
+  
     if (hasNew && next.size > 0) {
       warningState.closed = false;
     }
-
-    // Remove warnings that cleared
+  
     [...prev].forEach((id) => {
       if (!next.has(id)) warningState.seen.delete(id);
     });
-
+  
     renderWarnings();
   }
 
