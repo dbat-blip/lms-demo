@@ -159,6 +159,8 @@
         max-width: 860px;
         margin: 0 auto;
         padding: 32px 32px 60px;
+        border: solid 1px var(--ui-header-bg);
+        border-top: none
       }
   
       .section-head {
