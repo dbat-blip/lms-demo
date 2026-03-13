@@ -617,6 +617,299 @@
     font-size: 13px;
   }
   
+/* ============================================================
+   HERO IMAGE PREVIEW
+   ============================================================ */
+   .hero-image-preview {
+    margin-top: 8px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .12);
+    max-height: 120px;
+  }
+  
+  .hero-image-preview img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .hero-image-preview__error {
+    display: block;
+    padding: 10px;
+    font-size: 12px;
+    color: #f87171;
+    background: rgba(0, 0, 0, .2);
+  }
+  
+  /* ============================================================
+     BLOCK ROW — TOOLTIP INFO ICON
+     ============================================================ */
+  .block-row__label-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+  
+  .block-row__info {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: rgba(255, 255, 255, .55);
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    position: relative;
+  }
+  
+  .block-row__info::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1a1a1a;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 240px;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+    z-index: 1000;
+  }
+  
+  .block-row__info:hover::after {
+    opacity: 1;
+  }
+  
+  /* ============================================================
+     DUPLICATE / REMOVE BUTTONS
+     ============================================================ */
+  .btn-duplicate {
+    color: rgba(255, 255, 255, .70);
+  }
+  
+  .btn-duplicate:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .18);
+  }
+  
+  .btn-remove-duplicate {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, .30);
+  }
+  
+  .btn-remove-duplicate:hover {
+    background: rgba(248, 113, 113, .12);
+    border-color: #f87171;
+  }
+  
+  /* ============================================================
+     WARNING PANEL
+     ============================================================ */
+  .warning-panel {
+    background: #1c1a14;
+    border: 1px solid rgba(251, 191, 36, .30);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 8px;
+    animation: warning-slide-in .2s ease;
+    max-width: 320px;
+  }
+  
+  .warning-panel--hidden {
+    display: none;
+  }
+  
+  .warning-panel--exit {
+    animation: warning-slide-out .2s ease forwards;
+  }
+  
+  /* When copy button is floating, warning panel floats beneath it */
+  .warning-panel--floating {
+    position: fixed;
+    top: 56px; /* sits just below the floating copy button */
+    right: 20px;
+    z-index: 999;
+    max-width: 320px;
+  }
+  
+  @keyframes warning-slide-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0);    }
+  }
+  
+  @keyframes warning-slide-out {
+    from { opacity: 1; transform: translateX(0);    }
+    to   { opacity: 0; transform: translateX(20px); }
+  }
+  
+  .warning-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  
+  .warning-panel__title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fbbf24;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+  
+  .warning-panel__close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, .40);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: color .15s, background .15s;
+  }
+  
+  .warning-panel__close:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .08);
+  }
+  
+  .warning-panel__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .warning-panel__item {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .75);
+    line-height: 1.5;
+    padding-left: 12px;
+    position: relative;
+  }
+  
+  .warning-panel__item::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    color: #fbbf24;
+  }
+  
+  /* ============================================================
+     PAGE OUTLINE
+     ============================================================ */
+  .outline-panel {
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  
+  .outline-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+  }
+  
+  .outline-panel__title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--ui-muted);
+  }
+  
+  #outlineToggle {
+    font-size: 11px;
+    font-weight: 600;
+    background: none;
+    border: 1px solid var(--ui-border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    color: var(--ui-muted);
+    transition: background .15s, color .15s;
+  }
+  
+  #outlineToggle:hover {
+    background: var(--ui-panel-alt);
+    color: var(--ui-text);
+  }
+  
+  .outline-body {
+    padding: 0 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .outline-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--ui-border);
+  }
+  
+  .outline-row:last-child {
+    border-bottom: none;
+  }
+  
+  .outline-check {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  
+  .outline-label {
+    flex: 1;
+    font-weight: 500;
+    color: var(--ui-text);
+  }
+  
+  .outline-meta {
+    font-size: 11px;
+    color: var(--ui-muted);
+    white-space: nowrap;
+  }
+  
+  .outline-empty {
+    font-size: 13px;
+    color: var(--ui-muted);
+    font-style: italic;
+    padding: 4px 0;
+  }
+  
+  /* ============================================================
+     COPY WRAPPER — anchors warning panel position
+     ============================================================ */
+  #copyWrapper {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
   /* ============================================================
      RESPONSIVE
      ============================================================ */

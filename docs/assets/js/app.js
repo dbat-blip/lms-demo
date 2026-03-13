@@ -31,8 +31,8 @@
   // =====================================================================
   let UNIVERSAL_CSS = "";
 
-  const DEFAULT_HERO_IMAGE   = "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg";
-  const DEFAULT_VIDEO_EMBED  = `<iframe width="100%" height="500" src="https://www.youtube.com/embed/sWUiwWwR4BE?si=vS-kSEb9cPoMarCT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  const DEFAULT_HERO_IMAGE  = "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg";
+  const DEFAULT_VIDEO_EMBED = `<iframe width="100%" height="500" src="https://www.youtube.com/embed/sWUiwWwR4BE?si=vS-kSEb9cPoMarCT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
 
   const DEFAULT_FAQ_ITEMS = [
     {
@@ -82,20 +82,51 @@
 
   // =====================================================================
   // TILE CONFIG
-  // Each multi-tile section: { default, min, max, type, dataKey }
   // =====================================================================
   const TILE_CONFIG = {
-    learnByRole:   { default: 5, min: 2, max: 5, type: "image-cover", dataKey: "learnByRole.cards"    },
-    essentialImage:{ default: 3, min: 2, max: 5, type: "image-cover", dataKey: "essentialImage.cards"  },
-    essentialIcon: { default: 4, min: 2, max: 5, type: "icon",        dataKey: "essentialIcon.cards"   },
-    rolePathways:  { default: 4, min: 2, max: 5, type: "bullet",      dataKey: "rolePathways.cards"    },
-    managerToolkit:{ default: 4, min: 2, max: 5, type: "text",        dataKey: "managerToolkit.cards"  },
-    resourceHub:   { default: 4, min: 2, max: 5, type: "bullet-list", dataKey: "resourceHub.columns"   },
-    complianceHub: { default: 3, min: 2, max: 5, type: "bullet-cta",  dataKey: "complianceHub.columns" },
+    learnByRole:    { default: 5, min: 2, max: 5, type: "image-cover", dataKey: "learnByRole.cards"    },
+    essentialImage: { default: 3, min: 2, max: 5, type: "image-cover", dataKey: "essentialImage.cards"  },
+    essentialIcon:  { default: 4, min: 2, max: 5, type: "icon",        dataKey: "essentialIcon.cards"   },
+    rolePathways:   { default: 4, min: 2, max: 5, type: "bullet",      dataKey: "rolePathways.cards"    },
+    managerToolkit: { default: 4, min: 2, max: 5, type: "text",        dataKey: "managerToolkit.cards"  },
+    resourceHub:    { default: 4, min: 2, max: 5, type: "bullet-list", dataKey: "resourceHub.columns"   },
+    complianceHub:  { default: 3, min: 2, max: 5, type: "bullet-cta",  dataKey: "complianceHub.columns" },
   };
 
   // =====================================================================
-  // PLACEHOLDER SVG IMAGE
+  // DUPLICATABLE SECTIONS + TOOLTIP DESCRIPTIONS
+  // =====================================================================
+  const DUPLICATABLE_IDS = new Set([
+    "bannerCta", "featuredSplit", "featuredSplitFilled",
+    "splitHalf", "splitThird", "learnByRole", "essentialImage",
+    "essentialIcon", "rolePathways", "managerToolkit", "resourceHub",
+    "complianceHub", "quickAccess", "faqAccordion", "bannerHero",
+  ]);
+
+  const SECTION_TOOLTIPS = {
+    heroSplit:             "Full-width background image with a right-aligned content panel. Best used as the primary landing page opener.",
+    heroOverlay:           "Full-width darkened image with a centered headline and CTA button. Bold and direct landing page opener.",
+    bannerHero:            "Shorter image banner with a title and link. Works well as a secondary page header.",
+    bannerCta:             "Image background with a heading and subtext on the left and a CTA button on the right. Good for driving a single action.",
+    myLearningAndSnapshot: "Two-column gadget row. Shows a learner's assigned training dashboard alongside their daily activity snapshot.",
+    learnByRole:           "Image tile grid for organizing learning by job function. Each tile can link to a path, tag, or learning object.",
+    essentialImage:        "Image tile grid for highlighting priority courses or learning objects. Good for featured or required content.",
+    essentialIcon:         "Icon tile grid for key training topics. Icons inherit your brand color. Each tile links to a path, tag, or learning object.",
+    rolePathways:          "Text-based card grid with bullet points. Suited for structured multi-step learning journeys by role.",
+    managerToolkit:        "Simple text tile grid for manager-specific resources, learning paths, or tools.",
+    resourceHub:           "Text cards with bullet lists for organizing reference material, job aids, or resources by category.",
+    complianceHub:         "Text cards with bullet lists and CTAs. Focused on compliance topics and required training.",
+    quickAccess:           "Two-row image tile grid for fast navigation to frequently visited content, tools, or learning objects.",
+    featuredSplit:         "Single featured item with an image on the left and title, description, and CTA on the right.",
+    featuredSplitFilled:   "Same as Featured Split with a filled brand-color background treatment for more visual impact.",
+    videoAndSnapshot:      "Two-column layout with a video embed on the left and the daily snapshot gadget on the right.",
+    splitHalf:             "Two equal 50/50 columns. Each side can hold a gadget, video embed, or be left empty.",
+    splitThird:            "Two columns at a 66/33 split. Useful for a video or main content with a narrower sidebar gadget.",
+    faqAccordion:          "Expandable question and answer accordion. Items are fully editable from the builder.",
+  };
+
+  // =====================================================================
+  // PLACEHOLDER SVG
   // =====================================================================
   const PLACEHOLDER_IMAGE = `data:image/svg+xml,${encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
@@ -139,9 +170,7 @@
         return `
           <div class="column blockgrid" data-placeholder="true">
             <a class="hover-tile" href="#">
-              <div class="card_box_icon">
-                ${PLACEHOLDER_ICON_SVG}
-              </div>
+              <div class="card_box_icon">${PLACEHOLDER_ICON_SVG}</div>
               <div class="boxp">
                 <h3>Title Here</h3>
                 <p>Update this icon and text in the LMS editor.</p>
@@ -225,27 +254,226 @@
   // STATE
   // =====================================================================
   const state = {
-    clientName:      (els.clientName?.value   || "").trim(),
-    primaryColor:    (els.primaryColor?.value || "").trim(),
-    accentColor:     (els.accentColor?.value  || "").trim(),
-    heroHeight:      "40vh",
-    heroHeadline:    (els.heroHeadline?.value || "").trim(),
-    heroSubhead:     (els.heroSubhead?.value  || "").trim(),
-    heroImageUrl:    (els.heroImageUrl?.value || "").trim(),
-    industry:        (els.industry?.value     || "").trim(),
-    faqItems:        DEFAULT_FAQ_ITEMS.map(item => ({ ...item })),
-    flatCorners:     false,
-    iconColor:       "",
-    videoEmbedCode:  DEFAULT_VIDEO_EMBED,
-    splitHalf:       { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
-    splitThird:      { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
-    enabled:         Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled])),
-    order:           blocks.map((b) => b.id),
-    // Tile counts — persisted across reset (count only resets, data stays)
-    tileCounts:      Object.fromEntries(Object.entries(TILE_CONFIG).map(([id, cfg]) => [id, cfg.default])),
+    clientName:     (els.clientName?.value   || "").trim(),
+    primaryColor:   (els.primaryColor?.value || "").trim(),
+    accentColor:    (els.accentColor?.value  || "").trim(),
+    heroHeight:     "40vh",
+    heroHeadline:   (els.heroHeadline?.value || "").trim(),
+    heroSubhead:    (els.heroSubhead?.value  || "").trim(),
+    heroImageUrl:   (els.heroImageUrl?.value || "").trim(),
+    industry:       (els.industry?.value     || "").trim(),
+    faqItems:       DEFAULT_FAQ_ITEMS.map(item => ({ ...item })),
+    flatCorners:    false,
+    iconColor:      "",
+    videoEmbedCode: DEFAULT_VIDEO_EMBED,
+    splitHalf:      { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
+    splitThird:     { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
+    enabled:        Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled])),
+    order:          blocks.map((b) => b.id),
+    tileCounts:     Object.fromEntries(Object.entries(TILE_CONFIG).map(([id, cfg]) => [id, cfg.default])),
+    // Duplicate section state keyed by instanceId e.g. "featuredSplit__2"
+    duplicates:     {},
   };
 
   window.state = state;
+
+  // =====================================================================
+  // DUPLICATE HELPERS
+  // =====================================================================
+
+  // Returns the base ID from an instance ID e.g. "featuredSplit__2" → "featuredSplit"
+  function baseId(instanceId) {
+    return instanceId.split("__")[0];
+  }
+
+  // Returns all instance IDs for a base ID (including the original)
+  function instancesOf(bId) {
+    return state.order.filter((id) => baseId(id) === bId);
+  }
+
+  // Creates a duplicate entry in state
+  function createDuplicate(bId) {
+    const existing = instancesOf(bId);
+    if (existing.length >= 3) return;
+
+    const nextNum   = existing.length + 1;
+    const newId     = `${bId}__${nextNum}`;
+    const origBlock = blocks.find((b) => b.id === bId);
+    if (!origBlock) return;
+
+    // Register new block instance
+    blocks.push({ ...origBlock, id: newId, _isDuplicate: true, _baseId: bId });
+
+    // Copy state from original
+    state.enabled[newId] = true;
+    state.duplicates[newId] = {
+      splitSlots: bId === "splitHalf" || bId === "splitThird"
+        ? { ...state[bId] }
+        : null,
+      tileCount: TILE_CONFIG[bId] ? state.tileCounts[bId] : null,
+      faqItems:  bId === "faqAccordion" ? state.faqItems.map(i => ({ ...i })) : null,
+    };
+
+    // Insert immediately after the last instance of this base ID
+    const lastIdx = state.order.lastIndexOf(existing[existing.length - 1]);
+    state.order.splice(lastIdx + 1, 0, newId);
+
+    renderBlockPicker();
+    renderAll();
+  }
+
+  function removeDuplicate(instanceId) {
+    delete state.enabled[instanceId];
+    delete state.duplicates[instanceId];
+    state.order = state.order.filter((id) => id !== instanceId);
+    const blockIdx = blocks.findIndex((b) => b.id === instanceId);
+    if (blockIdx !== -1) blocks.splice(blockIdx, 1);
+    renderBlockPicker();
+    renderAll();
+  }
+
+  // Gets the effective state for a duplicate split section
+  function getDuplicateSplitState(instanceId) {
+    if (state.duplicates[instanceId]?.splitSlots) {
+      return state.duplicates[instanceId].splitSlots;
+    }
+    const bId = baseId(instanceId);
+    return state[bId] || { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
+  }
+
+  // Gets the effective tile count for a duplicate tile section
+  function getDuplicateTileCount(instanceId) {
+    if (state.duplicates[instanceId]?.tileCount != null) {
+      return state.duplicates[instanceId].tileCount;
+    }
+    return TILE_CONFIG[baseId(instanceId)]?.default ?? 3;
+  }
+
+  // Gets the effective FAQ items for a duplicate FAQ section
+  function getDuplicateFaqItems(instanceId) {
+    if (state.duplicates[instanceId]?.faqItems) {
+      return state.duplicates[instanceId].faqItems;
+    }
+    return state.faqItems;
+  }
+
+  // =====================================================================
+  // WARNINGS
+  // =====================================================================
+  const WARNING_DEFS = {
+    twoHeroes: {
+      id:      "twoHeroes",
+      message: "Two hero sections are enabled. Only one hero should be active at a time.",
+    },
+    placeholderTiles: {
+      id:      "placeholderTiles",
+      message: "One or more sections contain placeholder tiles. Remember to replace image URLs and update links in the LMS editor.",
+    },
+    defaultColors: {
+      id:      "defaultColors",
+      message: "Brand colors are still set to the default values. Update them to match your client.",
+    },
+  };
+
+  // Closed state persists — only reopens when a NEW warning appears
+  const warningState = {
+    active:   new Set(),   // currently active warning IDs
+    seen:     new Set(),   // warnings the user has already been shown
+    closed:   false,
+  };
+
+  function evaluateWarnings() {
+    const prev    = new Set(warningState.active);
+    const next    = new Set();
+    const heroIds = ["heroSplit", "heroOverlay", "bannerHero"];
+
+    // Two heroes
+    const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
+    if (enabledHeroes.length > 1) next.add("twoHeroes");
+
+    // Placeholder tiles — any enabled tile section with count > industry data coverage
+    Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
+      const count       = state.tileCounts[id] ?? cfg.default;
+      const industryData = getIndustryData();
+      const source       = resolveToken(cfg.dataKey, industryData);
+      const dataCount    = Array.isArray(source) ? source.length : 0;
+      if (state.enabled[id] && count > dataCount) next.add("placeholderTiles");
+    });
+
+    // Default colors
+    const defaultPrimary = "#37352a";
+    const defaultAccent  = "#ff7a52";
+    if (
+      (!state.primaryColor || state.primaryColor === defaultPrimary) &&
+      (!state.accentColor  || state.accentColor  === defaultAccent)
+    ) next.add("defaultColors");
+
+    // Check if any NEW warnings appeared
+    const hasNew = [...next].some((id) => !prev.has(id));
+
+    warningState.active = next;
+
+    // Reopen panel if there are new warnings
+    if (hasNew && next.size > 0) {
+      warningState.closed = false;
+    }
+
+    // Remove warnings that cleared
+    [...prev].forEach((id) => {
+      if (!next.has(id)) warningState.seen.delete(id);
+    });
+
+    renderWarnings();
+  }
+
+  function renderWarnings() {
+    let panel = document.getElementById("warningPanel");
+
+    // If no active warnings, slide out and remove
+    if (warningState.active.size === 0) {
+      if (panel) {
+        panel.classList.add("warning-panel--exit");
+        panel.addEventListener("animationend", () => panel.remove(), { once: true });
+      }
+      return;
+    }
+
+    // Create panel if it doesn't exist
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.id        = "warningPanel";
+      panel.className = "warning-panel";
+
+      // Insert after btnCopy's wrapper
+      const copyWrapper = document.getElementById("copyWrapper");
+      if (copyWrapper) {
+        copyWrapper.insertAdjacentElement("afterend", panel);
+      } else {
+        // Fallback — insert after btnCopy itself
+        els.btnCopy?.insertAdjacentElement("afterend", panel);
+      }
+    }
+
+    panel.classList.toggle("warning-panel--hidden", warningState.closed);
+    panel.classList.remove("warning-panel--exit");
+
+    panel.innerHTML = `
+      <div class="warning-panel__header">
+        <span class="warning-panel__title">⚠️ Heads up</span>
+        <button type="button" class="warning-panel__close" id="warningClose" title="Dismiss">✕</button>
+      </div>
+      <ul class="warning-panel__list">
+        ${[...warningState.active].map((id) => `
+          <li class="warning-panel__item">${WARNING_DEFS[id].message}</li>
+        `).join("")}
+      </ul>
+    `;
+
+    document.getElementById("warningClose")?.addEventListener("click", () => {
+      warningState.closed = true;
+      panel.classList.add("warning-panel--hidden");
+    });
+  }
 
   // =====================================================================
   // INDUSTRY DATA
@@ -257,43 +485,33 @@
 
   // =====================================================================
   // TILE HTML GENERATION
-  // Builds tile rows for a given section, respecting current tile count.
-  // Tiles beyond industry data default get placeholder HTML.
-  // Splits into multiple rows of 4 if count > 5 (not used for quickAccess).
   // =====================================================================
-  function buildTileRowsHtml(sectionId) {
-    const cfg         = TILE_CONFIG[sectionId];
+  function buildTileRowsHtml(sectionId, instanceId) {
+    const cfg          = TILE_CONFIG[sectionId];
     if (!cfg) return "";
 
     const industryData = getIndustryData();
-    const count        = state.tileCounts[sectionId] ?? cfg.default;
-    const dataKey      = cfg.dataKey;                          // e.g. "learnByRole.cards"
-    const sourceArray  = resolveToken(dataKey, industryData);  // array from industry data
+    const isDuplicate  = !!instanceId && instanceId !== sectionId;
+    const count        = isDuplicate
+      ? getDuplicateTileCount(instanceId)
+      : (state.tileCounts[sectionId] ?? cfg.default);
+
+    const sourceArray  = resolveToken(cfg.dataKey, industryData);
     const tilesPerRow  = 4;
 
-    // Build all tile HTML strings
     const tiles = [];
     for (let i = 0; i < count; i++) {
       const tileData = Array.isArray(sourceArray) ? sourceArray[i] : null;
-      if (tileData) {
-        tiles.push(buildIndustryTile(sectionId, cfg.type, tileData, i));
-      } else {
-        tiles.push(buildPlaceholderTile(cfg.type));
-      }
+      tiles.push(tileData
+        ? buildIndustryTile(sectionId, cfg.type, tileData, i)
+        : buildPlaceholderTile(cfg.type)
+      );
     }
 
-    // Split tiles into rows
-    const rows = [];
-    if (count <= 5) {
-      rows.push(tiles);
-    } else {
-      // Split evenly across two rows
-      const half = Math.ceil(count / 2);
-      rows.push(tiles.slice(0, half));
-      rows.push(tiles.slice(half));
-    }
+    const rows = count <= 5
+      ? [tiles]
+      : [tiles.slice(0, Math.ceil(count / 2)), tiles.slice(Math.ceil(count / 2))];
 
-    // Wrap each group in a tile-row
     const rowClass = cfg.type === "icon" ? "row tile-row iconcards" : "row tile-row";
     return rows
       .map(group => `
@@ -303,7 +521,6 @@
       .join("\n");
   }
 
-  // Builds a single tile from industry data for a given section type
   function buildIndustryTile(sectionId, type, data, index) {
     switch (sectionId) {
       case "learnByRole":
@@ -338,9 +555,7 @@
         return `
           <div class="column blockgrid">
             <a class="hover-tile" href="${data.href || "#"}">
-              <div class="card_box_icon">
-                ${data.iconSvg || PLACEHOLDER_ICON_SVG}
-              </div>
+              <div class="card_box_icon">${data.iconSvg || PLACEHOLDER_ICON_SVG}</div>
               <div class="boxp">
                 <h3>${data.title || ""}</h3>
                 <p>${data.description || ""}</p>
@@ -413,19 +628,23 @@
   }
 
   // =====================================================================
-  // TILE CONTROLS UI
+  // TILE EDITOR
   // =====================================================================
-  function renderTileEditor(blockId) {
-    const cfg = TILE_CONFIG[blockId];
+  function renderTileEditor(instanceId) {
+    const bId = baseId(instanceId);
+    const cfg = TILE_CONFIG[bId];
     if (!cfg) return;
 
-    const container = document.getElementById(`tileEditor-${blockId}`);
+    const container = document.getElementById(`tileEditor-${instanceId}`);
     if (!container) return;
 
-    container.style.display = state.enabled[blockId] ? "block" : "none";
+    container.style.display = state.enabled[instanceId] ? "block" : "none";
     container.innerHTML     = "";
 
-    const count = state.tileCounts[blockId] ?? cfg.default;
+    const isDuplicate = instanceId !== bId;
+    const count = isDuplicate
+      ? getDuplicateTileCount(instanceId)
+      : (state.tileCounts[bId] ?? cfg.default);
 
     const wrap = document.createElement("div");
     wrap.className = "icon-editor";
@@ -433,19 +652,9 @@
       <div class="field">
         <label>Number of tiles</label>
         <div class="tile-controls">
-          <button
-            type="button"
-            class="btn btn-small tile-btn-remove"
-            data-block="${blockId}"
-            ${count <= cfg.min ? "disabled" : ""}
-            title="Remove tile">−</button>
+          <button type="button" class="btn btn-small tile-btn-remove" data-instance="${instanceId}" ${count <= cfg.min ? "disabled" : ""} title="Remove tile">−</button>
           <span class="tile-count-display">${count}</span>
-          <button
-            type="button"
-            class="btn btn-small tile-btn-add"
-            data-block="${blockId}"
-            ${count >= cfg.max ? "disabled" : ""}
-            title="Add tile">+</button>
+          <button type="button" class="btn btn-small tile-btn-add"    data-instance="${instanceId}" ${count >= cfg.max ? "disabled" : ""} title="Add tile">+</button>
         </div>
         <div class="hint">Min ${cfg.min} · Max ${cfg.max}. Tiles beyond the industry preset will use placeholder content.</div>
       </div>
@@ -454,18 +663,34 @@
     container.appendChild(wrap);
 
     wrap.querySelector(".tile-btn-add")?.addEventListener("click", () => {
-      if (state.tileCounts[blockId] < cfg.max) {
-        state.tileCounts[blockId]++;
-        renderTileEditor(blockId);
-        renderAll();
+      if (isDuplicate) {
+        if (state.duplicates[instanceId].tileCount < cfg.max) {
+          state.duplicates[instanceId].tileCount++;
+          renderTileEditor(instanceId);
+          renderAll();
+        }
+      } else {
+        if (state.tileCounts[bId] < cfg.max) {
+          state.tileCounts[bId]++;
+          renderTileEditor(instanceId);
+          renderAll();
+        }
       }
     });
 
     wrap.querySelector(".tile-btn-remove")?.addEventListener("click", () => {
-      if (state.tileCounts[blockId] > cfg.min) {
-        state.tileCounts[blockId]--;
-        renderTileEditor(blockId);
-        renderAll();
+      if (isDuplicate) {
+        if (state.duplicates[instanceId].tileCount > cfg.min) {
+          state.duplicates[instanceId].tileCount--;
+          renderTileEditor(instanceId);
+          renderAll();
+        }
+      } else {
+        if (state.tileCounts[bId] > cfg.min) {
+          state.tileCounts[bId]--;
+          renderTileEditor(instanceId);
+          renderAll();
+        }
       }
     });
   }
@@ -482,13 +707,42 @@
   }
 
   // =====================================================================
+  // HERO IMAGE PREVIEW
+  // =====================================================================
+  function renderHeroImagePreview() {
+    const container = document.getElementById("heroImagePreview");
+    if (!container) return;
+
+    const url = resolveHeroImageUrl();
+    if (!url) {
+      container.innerHTML = "";
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="hero-image-preview">
+        <img
+          src="${escapeAttr(url)}"
+          alt="Hero preview"
+          onerror="this.parentElement.innerHTML='<span class=hero-image-preview__error>Could not load image</span>'"
+        />
+      </div>
+    `;
+  }
+
+  // =====================================================================
   // SPLIT EDITOR
   // =====================================================================
-  function renderSplitEditor(sectionId, containerId) {
+  function renderSplitEditor(sectionId, containerId, instanceId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    container.style.display = state.enabled[sectionId] ? "block" : "none";
-    container.innerHTML = "";
+
+    const iid        = instanceId || sectionId;
+    const isDuplicate = iid !== sectionId;
+    const slotState  = isDuplicate ? getDuplicateSplitState(iid) : state[sectionId];
+
+    container.style.display = state.enabled[iid] ? "block" : "none";
+    container.innerHTML     = "";
 
     const sides = [
       { key: "left",  embedKey: "leftEmbed",  label: sectionId === "splitThird" ? "Left (66%)"  : "Left (50%)"  },
@@ -496,35 +750,35 @@
     ];
 
     sides.forEach(({ key, embedKey, label }) => {
-      const field   = document.createElement("div");
+      const field    = document.createElement("div");
       field.className = "field";
-      const labelEl = document.createElement("label");
+      const labelEl  = document.createElement("label");
       labelEl.textContent = label;
       field.appendChild(labelEl);
 
       const select = document.createElement("select");
       SLOT_OPTIONS.forEach(({ label: optLabel, value }) => {
-        const opt     = document.createElement("option");
-        opt.value     = value;
+        const opt       = document.createElement("option");
+        opt.value       = value;
         opt.textContent = optLabel;
-        opt.selected  = state[sectionId][key] === value;
+        opt.selected    = slotState[key] === value;
         select.appendChild(opt);
       });
 
       const embedField = document.createElement("div");
-      embedField.className  = "field";
+      embedField.className       = "field";
       embedField.style.marginTop = "8px";
-      embedField.style.display   = state[sectionId][key] === "__SLOT_VIDEO__" ? "block" : "none";
-      embedField.innerHTML  = `
+      embedField.style.display   = slotState[key] === "__SLOT_VIDEO__" ? "block" : "none";
+      embedField.innerHTML = `
         <label>Embed code</label>
-        <textarea rows="3" placeholder="Paste your iframe embed code here...">${escapeHtml(state[sectionId][embedKey] || DEFAULT_VIDEO_EMBED)}</textarea>
+        <textarea rows="3" placeholder="Paste your iframe embed code here...">${escapeHtml(slotState[embedKey] || DEFAULT_VIDEO_EMBED)}</textarea>
         <div class="hint">Paste the full iframe embed code from your video platform.</div>
       `;
 
       select.addEventListener("change", () => {
-        state[sectionId][key] = select.value;
-        if (select.value === "__SLOT_VIDEO__" && !state[sectionId][embedKey]) {
-          state[sectionId][embedKey] = DEFAULT_VIDEO_EMBED;
+        slotState[key] = select.value;
+        if (select.value === "__SLOT_VIDEO__" && !slotState[embedKey]) {
+          slotState[embedKey] = DEFAULT_VIDEO_EMBED;
           embedField.querySelector("textarea").value = DEFAULT_VIDEO_EMBED;
         }
         embedField.style.display = select.value === "__SLOT_VIDEO__" ? "block" : "none";
@@ -532,7 +786,7 @@
       });
 
       embedField.querySelector("textarea")?.addEventListener("input", (e) => {
-        state[sectionId][embedKey] = e.target.value;
+        slotState[embedKey] = e.target.value;
         renderAll();
       });
 
@@ -552,9 +806,10 @@
     }, data) ?? "";
   }
 
-  function applyTokens(html) {
+  function applyTokens(html, instanceId) {
     const industryData = getIndustryData();
     html = (html || "").replace(/__VIDEO_EMBED__/g, state.videoEmbedCode || "");
+
     return html.replace(/\{\{([^}]+)\}\}/g, (_, raw) => {
       const key = raw.trim();
       if (key === "HERO_IMAGE")                 return resolveHeroImageUrl();
@@ -562,13 +817,80 @@
       if (key === "HERO_HEADLINE")              return state.heroHeadline || "";
       if (key === "HERO_SUBHEAD")               return state.heroSubhead  || "";
       if (key === "videoAndSnapshot.embedCode") return state.videoEmbedCode || "";
-      if (key === "splitHalf.left")   return state.splitHalf.left   === "__SLOT_VIDEO__" ? (state.splitHalf.leftEmbed   || DEFAULT_VIDEO_EMBED) : (state.splitHalf.left   || "");
-      if (key === "splitHalf.right")  return state.splitHalf.right  === "__SLOT_VIDEO__" ? (state.splitHalf.rightEmbed  || DEFAULT_VIDEO_EMBED) : (state.splitHalf.right  || "");
-      if (key === "splitThird.left")  return state.splitThird.left  === "__SLOT_VIDEO__" ? (state.splitThird.leftEmbed  || DEFAULT_VIDEO_EMBED) : (state.splitThird.left  || "");
-      if (key === "splitThird.right") return state.splitThird.right === "__SLOT_VIDEO__" ? (state.splitThird.rightEmbed || DEFAULT_VIDEO_EMBED) : (state.splitThird.right || "");
+
+      // Split slots — respect duplicate state
+      if (key === "splitHalf.left" || key === "splitHalf.right" || key === "splitThird.left" || key === "splitThird.right") {
+        const [sid, side] = key.split(".");
+        const embedKey    = side === "left" ? "leftEmbed" : "rightEmbed";
+        const iid         = instanceId || sid;
+        const slotState   = (iid !== sid && state.duplicates[iid]?.splitSlots)
+          ? state.duplicates[iid].splitSlots
+          : state[sid];
+        return slotState[side] === "__SLOT_VIDEO__"
+          ? (slotState[embedKey] || DEFAULT_VIDEO_EMBED)
+          : (slotState[side] || "");
+      }
+
       const val = resolveToken(key, industryData);
       return val == null ? "" : String(val);
     });
+  }
+
+  // =====================================================================
+  // PAGE OUTLINE
+  // =====================================================================
+  let outlineOpen = false;
+
+  function renderOutline() {
+    const container = document.getElementById("outlineBody");
+    const toggle    = document.getElementById("outlineToggle");
+    if (!container || !toggle) return;
+
+    const enabledIds = state.order.filter((id) => state.enabled[id]);
+
+    container.style.display = outlineOpen ? "block" : "none";
+    toggle.textContent      = outlineOpen ? "Page Outline ↑" : "Page Outline ↓";
+
+    if (!enabledIds.length) {
+      container.innerHTML = `<p class="outline-empty">No sections enabled.</p>`;
+      return;
+    }
+
+    container.innerHTML = enabledIds.map((id) => {
+      const bId   = baseId(id);
+      const block = blocks.find((b) => b.id === id);
+      if (!block) return "";
+
+      const hasPlaceholder = (() => {
+        const cfg = TILE_CONFIG[bId];
+        if (!cfg || !state.enabled[id]) return false;
+        const count      = id !== bId ? getDuplicateTileCount(id) : (state.tileCounts[bId] ?? cfg.default);
+        const source     = resolveToken(cfg.dataKey, getIndustryData());
+        const dataCount  = Array.isArray(source) ? source.length : 0;
+        return count > dataCount;
+      })();
+
+      let meta = "";
+      if (TILE_CONFIG[bId]) {
+        const count = id !== bId ? getDuplicateTileCount(id) : (state.tileCounts[bId] ?? TILE_CONFIG[bId].default);
+        meta = `<span class="outline-meta">${count} tile${count !== 1 ? "s" : ""}${hasPlaceholder ? " · ⚠️ placeholder" : ""}</span>`;
+      } else if (bId === "faqAccordion") {
+        const items = id !== bId ? getDuplicateFaqItems(id) : state.faqItems;
+        meta = `<span class="outline-meta">${items.length} item${items.length !== 1 ? "s" : ""}</span>`;
+      }
+
+      const label = block._isDuplicate
+        ? `${blocks.find((b) => b.id === bId)?.name || bId} (${id.split("__")[1]})`
+        : block.name;
+
+      return `
+        <div class="outline-row">
+          <span class="outline-check">✅</span>
+          <span class="outline-label">${label}</span>
+          ${meta}
+        </div>
+      `;
+    }).join("");
   }
 
   // =====================================================================
@@ -578,8 +900,14 @@
     const btn    = els.btnCopy;
     const header = document.querySelector(".app-header");
     if (!btn || !header) return;
+
     const observer = new IntersectionObserver(
-      ([entry]) => btn.classList.toggle("is-floating", !entry.isIntersecting),
+      ([entry]) => {
+        const floating = !entry.isIntersecting;
+        btn.classList.toggle("is-floating", floating);
+        const panel = document.getElementById("warningPanel");
+        if (panel) panel.classList.toggle("warning-panel--floating", floating);
+      },
       { threshold: 0 }
     );
     observer.observe(header);
@@ -602,6 +930,7 @@
     renderBlockPicker();
     renderAll();
     initFloatingCopyBtn();
+    initOutlineToggle();
   }
 
   async function loadUniversalCss() {
@@ -615,6 +944,14 @@
     }
   }
 
+  function initOutlineToggle() {
+    const toggle = document.getElementById("outlineToggle");
+    toggle?.addEventListener("click", () => {
+      outlineOpen = !outlineOpen;
+      renderOutline();
+    });
+  }
+
   // =====================================================================
   // INPUT BINDING
   // =====================================================================
@@ -623,6 +960,7 @@
       if (!els[key]) return;
       els[key].addEventListener("input", () => {
         state[key] = (els[key].value || "").trim();
+        if (key === "heroImageUrl") renderHeroImagePreview();
         renderAll();
       });
     });
@@ -637,8 +975,8 @@
 
     const selectAll = document.getElementById("selectAll");
     selectAll?.addEventListener("change", () => {
-      const checked  = selectAll.checked;
-      const heroIds  = ["heroSplit", "heroOverlay"];
+      const checked = selectAll.checked;
+      const heroIds = ["heroSplit", "heroOverlay"];
       state.order.forEach((id) => {
         if (heroIds.includes(id)) {
           state.enabled[id] = checked ? id === "heroSplit" : false;
@@ -656,6 +994,13 @@
 
     document.getElementById("presetPrimary")?.addEventListener("click",   () => applyPreset("primary"));
     document.getElementById("presetSecondary")?.addEventListener("click", () => applyPreset("secondary"));
+
+    // Print button
+    document.getElementById("btnPrint")?.addEventListener("click", () => {
+      if (typeof window.openPrintSummary === "function") {
+        window.openPrintSummary(state, blocks, TILE_CONFIG, getIndustryData, getDuplicateTileCount, getDuplicateFaqItems, baseId, instancesOf);
+      }
+    });
   }
 
   // =====================================================================
@@ -730,103 +1075,149 @@
 
     const industrySelected = !!state.industry;
 
-    state.order.forEach((blockId, index) => {
-      const block = blocks.find((b) => b.id === blockId);
+    state.order.forEach((instanceId, index) => {
+      const bId   = baseId(instanceId);
+      const block = blocks.find((b) => b.id === instanceId);
       if (!block) return;
+
+      const isDuplicate    = block._isDuplicate === true;
+      const instanceCount  = instancesOf(bId).length;
+      const canDuplicate   = DUPLICATABLE_IDS.has(bId) && instanceCount < 3 && !isDuplicate;
+      const tooltip        = SECTION_TOOLTIPS[bId] || "";
 
       const row = document.createElement("div");
       row.className = "block-row";
       if (!industrySelected) row.classList.add("block-row--disabled");
 
-      const left = document.createElement("div");
-      left.className = "block-row__left";
+      // ── Left: checkbox + label + tooltip ─────────────────────────
+      const left       = document.createElement("div");
+      left.className   = "block-row__left";
 
-      const checkbox    = document.createElement("input");
-      checkbox.type     = "checkbox";
-      checkbox.checked  = !!state.enabled[block.id];
+      const checkbox   = document.createElement("input");
+      checkbox.type    = "checkbox";
+      checkbox.checked = !!state.enabled[instanceId];
       checkbox.disabled = !industrySelected;
+
+      const labelWrap  = document.createElement("div");
+      labelWrap.className = "block-row__label-wrap";
+
+      const labelEl    = document.createElement("div");
+      labelEl.className   = "block-row__label";
+      labelEl.textContent = isDuplicate
+        ? `${blocks.find((b) => b.id === bId)?.name || bId} (${instanceId.split("__")[1]})`
+        : block.name;
+
+      labelWrap.appendChild(labelEl);
+
+      // Tooltip info icon
+      if (tooltip && !isDuplicate) {
+        const info = document.createElement("span");
+        info.className   = "block-row__info";
+        info.textContent = "ℹ";
+        info.setAttribute("data-tooltip", tooltip);
+        labelWrap.appendChild(info);
+      }
+
+      left.appendChild(checkbox);
+      left.appendChild(labelWrap);
+
+      // ── Right: Up/Down + Duplicate + Remove ───────────────────────
+      const right       = document.createElement("div");
+      right.className   = "block-row__right";
+
+      right.appendChild(button("↑", () => move(index, -1)));
+      right.appendChild(button("↓", () => move(index, +1)));
+
+      if (canDuplicate) {
+        const dupBtn = button("⊕", () => createDuplicate(bId));
+        dupBtn.title = "Duplicate section";
+        dupBtn.classList.add("btn-duplicate");
+        right.appendChild(dupBtn);
+      }
+
+      if (isDuplicate) {
+        // Show ⊕ only if not at max
+        if (instanceCount < 3) {
+          const dupBtn = button("⊕", () => createDuplicate(bId));
+          dupBtn.title = "Duplicate section";
+          dupBtn.classList.add("btn-duplicate");
+          right.appendChild(dupBtn);
+        }
+        const removeBtn = button("✕", () => removeDuplicate(instanceId));
+        removeBtn.title = "Remove duplicate";
+        removeBtn.classList.add("btn-remove-duplicate");
+        right.appendChild(removeBtn);
+      }
+
+      row.appendChild(left);
+      row.appendChild(right);
 
       checkbox.addEventListener("change", () => {
         if (!industrySelected) return;
-        state.enabled[block.id] = checkbox.checked;
+        state.enabled[instanceId] = checkbox.checked;
 
-        if (block.id === "faqAccordion")                                   renderFaqEditor();
-        if (block.id === "essentialIcon")                                  renderIconEditor();
-        if (["heroSplit", "heroOverlay"].includes(block.id))               renderHeroEditor();
-        if (block.id === "splitHalf")                                      renderSplitEditor("splitHalf",  "splitHalfEditor");
-        if (block.id === "splitThird")                                     renderSplitEditor("splitThird", "splitThirdEditor");
-        if (block.id === "videoAndSnapshot")                               renderVideoEditor();
-        if (TILE_CONFIG[block.id])                                         renderTileEditor(block.id);
+        if (bId === "faqAccordion")                                    renderFaqEditor(instanceId);
+        if (bId === "essentialIcon")                                   renderIconEditor();
+        if (["heroSplit", "heroOverlay"].includes(bId))                renderHeroEditor();
+        if (bId === "splitHalf")                                       renderSplitEditor("splitHalf",  `splitHalfEditor-${instanceId}`,  instanceId);
+        if (bId === "splitThird")                                      renderSplitEditor("splitThird", `splitThirdEditor-${instanceId}`, instanceId);
+        if (bId === "videoAndSnapshot")                                renderVideoEditor();
+        if (TILE_CONFIG[bId])                                          renderTileEditor(instanceId);
 
         syncSelectAll();
         renderAll();
       });
 
-      const label       = document.createElement("div");
-      label.className   = "block-row__label";
-      label.textContent = block.name;
-
-      left.appendChild(checkbox);
-      left.appendChild(label);
-
-      const right = document.createElement("div");
-      right.className = "block-row__right";
-      right.appendChild(button("Up",   () => move(index, -1)));
-      right.appendChild(button("Down", () => move(index, +1)));
-
-      row.appendChild(left);
-      row.appendChild(right);
       els.blockList.appendChild(row);
 
       // ── Editor mounts ──────────────────────────────────────────────
-      if (block.id === "faqAccordion") {
+      if (bId === "faqAccordion") {
         const mount = document.createElement("div");
-        mount.id = "faqEditor";
+        mount.id    = `faqEditor-${instanceId}`;
         els.blockList.appendChild(mount);
-        renderFaqEditor();
+        renderFaqEditor(instanceId);
       }
 
-      if (block.id === "essentialIcon") {
+      if (bId === "essentialIcon" && !isDuplicate) {
         const mount = document.createElement("div");
-        mount.id = "iconEditor";
+        mount.id    = "iconEditor";
         els.blockList.appendChild(mount);
         renderIconEditor();
       }
 
-      if (block.id === "splitHalf") {
+      if (bId === "splitHalf") {
         const mount = document.createElement("div");
-        mount.id = "splitHalfEditor";
+        mount.id    = `splitHalfEditor-${instanceId}`;
         els.blockList.appendChild(mount);
-        renderSplitEditor("splitHalf", "splitHalfEditor");
+        renderSplitEditor("splitHalf", `splitHalfEditor-${instanceId}`, instanceId);
       }
 
-      if (block.id === "splitThird") {
+      if (bId === "splitThird") {
         const mount = document.createElement("div");
-        mount.id = "splitThirdEditor";
+        mount.id    = `splitThirdEditor-${instanceId}`;
         els.blockList.appendChild(mount);
-        renderSplitEditor("splitThird", "splitThirdEditor");
+        renderSplitEditor("splitThird", `splitThirdEditor-${instanceId}`, instanceId);
       }
 
-      if (block.id === "heroOverlay") {
+      if (bId === "heroOverlay" && !isDuplicate) {
         const mount = document.createElement("div");
-        mount.id = "heroEditor";
+        mount.id    = "heroEditor";
         els.blockList.appendChild(mount);
         renderHeroEditor();
       }
 
-      if (block.id === "videoAndSnapshot") {
+      if (bId === "videoAndSnapshot" && !isDuplicate) {
         const mount = document.createElement("div");
-        mount.id = "videoEditor";
+        mount.id    = "videoEditor";
         els.blockList.appendChild(mount);
         renderVideoEditor();
       }
 
-      // Tile editor mounts for all multi-tile sections
-      if (TILE_CONFIG[block.id]) {
+      if (TILE_CONFIG[bId]) {
         const mount = document.createElement("div");
-        mount.id    = `tileEditor-${block.id}`;
+        mount.id    = `tileEditor-${instanceId}`;
         els.blockList.appendChild(mount);
-        renderTileEditor(block.id);
+        renderTileEditor(instanceId);
       }
     });
 
@@ -857,8 +1248,8 @@
 
     const ignoredIds  = ["heroOverlay"];
     const relevantIds = state.order.filter((id) => !ignoredIds.includes(id));
-    const allChecked  = relevantIds.every((id)  => state.enabled[id]);
-    const someChecked = relevantIds.some((id)   => state.enabled[id]);
+    const allChecked  = relevantIds.every((id) => state.enabled[id]);
+    const someChecked = relevantIds.some((id)  => state.enabled[id]);
 
     selectAll.checked       = allChecked;
     selectAll.indeterminate = someChecked && !allChecked;
@@ -894,13 +1285,19 @@
   // =====================================================================
   // FAQ EDITOR
   // =====================================================================
-  function renderFaqEditor() {
-    const container = document.getElementById("faqEditor");
+  function renderFaqEditor(instanceId) {
+    const iid       = instanceId || "faqAccordion";
+    const containerId = `faqEditor-${iid}`;
+    const container   = document.getElementById(containerId);
     if (!container) return;
-    container.style.display = state.enabled["faqAccordion"] ? "block" : "none";
+
+    const isDuplicate = iid !== "faqAccordion";
+    const items       = isDuplicate ? getDuplicateFaqItems(iid) : state.faqItems;
+
+    container.style.display = state.enabled[iid] ? "block" : "none";
     container.innerHTML     = "";
 
-    state.faqItems.forEach((item, index) => {
+    items.forEach((item, index) => {
       const wrap = document.createElement("div");
       wrap.className = "faq-editor-item";
       wrap.innerHTML = `
@@ -908,8 +1305,8 @@
           <span class="faq-editor-item__label">FAQ ${index + 1}</span>
           <div class="faq-editor-item__controls">
             <button type="button" class="btn btn-small" data-faq-up="${index}"     ${index === 0 ? "disabled" : ""}>↑</button>
-            <button type="button" class="btn btn-small" data-faq-down="${index}"   ${index === state.faqItems.length - 1 ? "disabled" : ""}>↓</button>
-            <button type="button" class="btn btn-small btn-danger" data-faq-remove="${index}" ${state.faqItems.length <= 1 ? "disabled" : ""}>−</button>
+            <button type="button" class="btn btn-small" data-faq-down="${index}"   ${index === items.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" class="btn btn-small btn-danger" data-faq-remove="${index}" ${items.length <= 1 ? "disabled" : ""}>−</button>
           </div>
         </div>
         <div class="field">
@@ -925,26 +1322,26 @@
     });
 
     const addBtn = document.createElement("button");
-    addBtn.type      = "button";
-    addBtn.className = "btn btn-small";
+    addBtn.type        = "button";
+    addBtn.className   = "btn btn-small";
     addBtn.style.marginTop = "8px";
-    addBtn.textContent     = "+ Add FAQ Item";
+    addBtn.textContent = "+ Add FAQ Item";
     addBtn.addEventListener("click", () => {
-      state.faqItems.push({ question: "", answer: "" });
-      renderFaqEditor();
+      items.push({ question: "", answer: "" });
+      renderFaqEditor(iid);
       renderAll();
     });
     container.appendChild(addBtn);
 
     container.querySelectorAll("[data-faq-question]").forEach(input => {
       input.addEventListener("input", () => {
-        state.faqItems[+input.dataset.faqQuestion].question = input.value;
+        items[+input.dataset.faqQuestion].question = input.value;
         renderAll();
       });
     });
     container.querySelectorAll("[data-faq-answer]").forEach(textarea => {
       textarea.addEventListener("input", () => {
-        state.faqItems[+textarea.dataset.faqAnswer].answer = textarea.value;
+        items[+textarea.dataset.faqAnswer].answer = textarea.value;
         renderAll();
       });
     });
@@ -952,26 +1349,26 @@
       btn.addEventListener("click", () => {
         const i = +btn.dataset.faqUp;
         if (i === 0) return;
-        [state.faqItems[i - 1], state.faqItems[i]] = [state.faqItems[i], state.faqItems[i - 1]];
-        renderFaqEditor();
+        [items[i - 1], items[i]] = [items[i], items[i - 1]];
+        renderFaqEditor(iid);
         renderAll();
       });
     });
     container.querySelectorAll("[data-faq-down]").forEach(btn => {
       btn.addEventListener("click", () => {
         const i = +btn.dataset.faqDown;
-        if (i === state.faqItems.length - 1) return;
-        [state.faqItems[i], state.faqItems[i + 1]] = [state.faqItems[i + 1], state.faqItems[i]];
-        renderFaqEditor();
+        if (i === items.length - 1) return;
+        [items[i], items[i + 1]] = [items[i + 1], items[i]];
+        renderFaqEditor(iid);
         renderAll();
       });
     });
     container.querySelectorAll("[data-faq-remove]").forEach(btn => {
       btn.addEventListener("click", () => {
         const i = +btn.dataset.faqRemove;
-        if (state.faqItems.length <= 1) return;
-        state.faqItems.splice(i, 1);
-        renderFaqEditor();
+        if (items.length <= 1) return;
+        items.splice(i, 1);
+        renderFaqEditor(iid);
         renderAll();
       });
     });
@@ -1020,11 +1417,9 @@
   function move(index, delta) {
     const next = index + delta;
     if (next < 0 || next >= state.order.length) return;
-    const copy    = state.order.slice();
-    const tmp     = copy[index];
-    copy[index]   = copy[next];
-    copy[next]    = tmp;
-    state.order   = copy;
+    const copy  = state.order.slice();
+    [copy[index], copy[next]] = [copy[next], copy[index]];
+    state.order = copy;
     renderBlockPicker();
     renderAll();
   }
@@ -1046,6 +1441,8 @@
     if (!anyEnabled) {
       els.output.value = "";
       renderEmptyState();
+      evaluateWarnings();
+      renderOutline();
       return;
     }
     const html       = assembleContentHtml();
@@ -1053,6 +1450,8 @@
     const exportHtml = `<style>\n${css}\n</style>\n${html}`.trim();
     els.output.value = exportHtml;
     renderPreviewFrame(css, html);
+    evaluateWarnings();
+    renderOutline();
   }
 
   // =====================================================================
@@ -1117,14 +1516,10 @@
 
     const previewOnlyCss = `
       .gadget-block {
-        min-height: 180px;
-        border: 2px dashed var(--brandColor, #023843) !important;
-        border-radius: 8px;
-        background: rgba(0,0,0,.03) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        position: relative;
+        min-height: 180px; border: 2px dashed var(--brandColor, #023843) !important;
+        border-radius: 8px; background: rgba(0,0,0,.03) !important;
+        display: flex !important; align-items: center !important;
+        justify-content: center !important; position: relative;
       }
       .gadget-block activity-feed,.gadget-block classes,.gadget-block company-news,
       .gadget-block daily-snapshot,.gadget-block forum-posts,.gadget-block leaderboard,
@@ -1185,32 +1580,40 @@
   <div class="column"><div class="spacer height-40"></div></div>
 </div>`;
 
-    const content = state.order
-      .filter((id) => state.enabled[id])
-      .map((id) => {
-        const block = blocks.find((b) => b.id === id);
+    const enabledSections = state.order.filter((id) => state.enabled[id]);
+
+    // Build page title comment
+    const pageComment = `<!--\n  Page Sections:\n${enabledSections.map((id) => {
+      const bId   = baseId(id);
+      const block = blocks.find((b) => b.id === id);
+      return `  - ${block?.name || bId}`;
+    }).join("\n")}\n  Built with ClearLearn Custom Page Generator\n-->`;
+
+    const content = enabledSections
+      .map((instanceId) => {
+        const bId   = baseId(instanceId);
+        const block = blocks.find((b) => b.id === instanceId);
         if (!block) return "";
 
-        // Multi-tile sections use dynamic HTML builder
-        if (TILE_CONFIG[id]) {
-          return buildTileSectionHtml(id, block);
+        if (TILE_CONFIG[bId]) {
+          return buildTileSectionHtml(bId, block, instanceId);
         }
 
         const html = typeof block.getHtml === "function"
-          ? block.getHtml()
+          ? block.getHtml(instanceId)
           : (block.html || "");
-        return applyTokens(html);
+        return applyTokens(html, instanceId);
       })
       .join("\n");
 
-    return anyHero ? content : `${spacer}\n${content}`;
+    const body = anyHero ? content : `${spacer}\n${content}`;
+    return `${pageComment}\n${body}`;
   }
 
-  // Builds the full section HTML for a multi-tile section
-  function buildTileSectionHtml(sectionId, block) {
+  function buildTileSectionHtml(sectionId, block, instanceId) {
     const industryData = getIndustryData();
+    const iid          = instanceId || sectionId;
 
-    // Section heading rows are still token-driven from industry data
     const headingTokens = {
       learnByRole:    { heading: resolveToken("learnByRole.subheading",    industryData) },
       essentialImage: { heading: resolveToken("essentialImage.subheading", industryData) },
@@ -1225,91 +1628,28 @@
     };
 
     const t        = headingTokens[sectionId] || {};
-    const tileRows = buildTileRowsHtml(sectionId);
+    const tileRows = buildTileRowsHtml(sectionId, iid);
     const spacer   = `<div class="row" data-section-id="spacer-40">
   <div class="column"><div class="spacer height-40"></div></div>
 </div>`;
 
     switch (sectionId) {
       case "learnByRole":
-        return `
-<div class="row" data-section-id="learn-by-role">
-  <div class="column sectionheadline">
-    <h2>Learn by Role</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="learn-by-role"><div class="column sectionheadline"><h2>Learn by Role</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "essentialImage":
-        return `
-<div class="row" data-section-id="essential-image-cards">
-  <div class="column sectionheadline">
-    <h2>Essentials</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="essential-image-cards"><div class="column sectionheadline"><h2>Essentials</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "essentialIcon":
-        return `
-<div class="row" data-section-id="essential-icon-cards">
-  <div class="column sectionheadline">
-    <h2>Essential Training</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="essential-icon-cards"><div class="column sectionheadline"><h2>Essential Training</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "rolePathways":
-        return `
-<div class="row" data-section-id="role-pathways">
-  <div class="column sectionheadline">
-    <h2>Role-Based Pathways</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="role-pathways"><div class="column sectionheadline"><h2>Role-Based Pathways</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "managerToolkit":
-        return `
-<div class="row" data-section-id="manager-toolkit">
-  <div class="column sectionheadline">
-    <h2>Manager Toolkit</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="manager-toolkit"><div class="column sectionheadline"><h2>Manager Toolkit</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "resourceHub":
-        return `
-<div class="row" data-section-id="resource-hub">
-  <div class="column sectionheadline">
-    <h2>${t.heading}</h2>
-    <p>${t.subheading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="resource-hub"><div class="column sectionheadline"><h2>${t.heading}</h2><p>${t.subheading}</p></div></div>\n${tileRows}\n${spacer}`;
       case "complianceHub":
-        return `
-<div class="row" data-section-id="compliance-hub">
-  <div class="column sectionheadline">
-    <h2>Compliance Hub</h2>
-    <p>${t.heading}</p>
-  </div>
-</div>
-${tileRows}
-${spacer}`.trim();
-
+        return `<div class="row" data-section-id="compliance-hub"><div class="column sectionheadline"><h2>Compliance Hub</h2><p>${t.heading}</p></div></div>\n${tileRows}\n${spacer}`;
       default:
-        return applyTokens(block.html || "");
+        return applyTokens(block.html || "", iid);
     }
   }
 
@@ -1324,17 +1664,9 @@ ${spacer}`.trim();
       ? sanitizeHeroHeight((state.heroHeight || "40vh").trim())
       : "40vh";
 
-    const vars = `:root {
-  --brandColor:  ${brand};
-  --accentColor: ${accent};
-  --heroHeight:  ${heroHeight};
-}`;
+    const vars = `:root {\n  --brandColor:  ${brand};\n  --accentColor: ${accent};\n  --heroHeight:  ${heroHeight};\n}`;
 
-    const flatCss = state.flatCorners ? `
-/* =========================================================
-   FLAT CORNERS OVERRIDE
-   ========================================================= */
-*, *::before, *::after { border-radius: 0 !important; }` : "";
+    const flatCss = state.flatCorners ? `\n/* FLAT CORNERS OVERRIDE */\n*, *::before, *::after { border-radius: 0 !important; }` : "";
 
     const iconColorCss = state.enabled["essentialIcon"] && sanitizeColor(state.iconColor, "")
       ? `\n\n/* Icon color override */\n.card_box_icon svg path { fill: ${sanitizeColor(state.iconColor, "")} !important; }`
@@ -1378,17 +1710,15 @@ ${spacer}`.trim();
   // RESET
   // =====================================================================
   function resetDefaults() {
-    // DOM resets
     els.clientName.value   = "";
     els.primaryColor.value = "#37352a";
     els.accentColor.value  = "#ff7a52";
     els.heroImageUrl.value = "";
     els.industry.value     = "";
-    if (els.flatCorners)   els.flatCorners.checked = false;
-    if (els.heroHeadline)  els.heroHeadline.value  = "Training that holds up in an audit";
-    if (els.heroSubhead)   els.heroSubhead.value   = "This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.";
+    if (els.flatCorners)  els.flatCorners.checked = false;
+    if (els.heroHeadline) els.heroHeadline.value  = "Training that holds up in an audit";
+    if (els.heroSubhead)  els.heroSubhead.value   = "This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.";
 
-    // State resets
     state.clientName     = "";
     state.primaryColor   = "#37352a";
     state.accentColor    = "#ff7a52";
@@ -1402,11 +1732,19 @@ ${spacer}`.trim();
     state.videoEmbedCode = DEFAULT_VIDEO_EMBED;
     state.splitHalf      = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
     state.splitThird     = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
-    state.enabled        = Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled]));
-    state.order          = blocks.map((b) => b.id);
     state.faqItems       = DEFAULT_FAQ_ITEMS.map(item => ({ ...item }));
 
-    // Reset tile counts to defaults — data is preserved
+    // Remove all duplicates from order and blocks
+    const dupIds = state.order.filter((id) => id.includes("__"));
+    dupIds.forEach((id) => {
+      const idx = blocks.findIndex((b) => b.id === id);
+      if (idx !== -1) blocks.splice(idx, 1);
+    });
+    state.duplicates = {};
+    state.enabled    = Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled]));
+    state.order      = blocks.map((b) => b.id);
+
+    // Reset tile counts to defaults
     Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
       state.tileCounts[id] = cfg.default;
     });
@@ -1414,13 +1752,14 @@ ${spacer}`.trim();
     const selectAll = document.getElementById("selectAll");
     if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
 
+    renderHeroImagePreview();
     renderBlockPicker();
-    renderFaqEditor();
+    renderFaqEditor("faqAccordion");
     renderIconEditor();
     renderHeroEditor();
     renderVideoEditor();
-    renderSplitEditor("splitHalf",  "splitHalfEditor");
-    renderSplitEditor("splitThird", "splitThirdEditor");
+    renderSplitEditor("splitHalf",  "splitHalfEditor-splitHalf");
+    renderSplitEditor("splitThird", "splitThirdEditor-splitThird");
     Object.keys(TILE_CONFIG).forEach((id) => renderTileEditor(id));
     renderAll();
   }
