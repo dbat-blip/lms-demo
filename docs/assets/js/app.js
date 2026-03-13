@@ -428,8 +428,7 @@
 
   function renderWarnings() {
     let panel = document.getElementById("warningPanel");
-
-    // If no active warnings, slide out and remove
+  
     if (warningState.active.size === 0) {
       if (panel) {
         panel.classList.add("warning-panel--exit");
@@ -437,26 +436,18 @@
       }
       return;
     }
-
-    // Create panel if it doesn't exist
+  
     if (!panel) {
       panel = document.createElement("div");
       panel.id        = "warningPanel";
       panel.className = "warning-panel";
-
-      // Insert after btnCopy's wrapper
-      const copyWrapper = document.getElementById("copyWrapper");
-      if (copyWrapper) {
-        copyWrapper.insertAdjacentElement("afterend", panel);
-      } else {
-        // Fallback — insert after btnCopy itself
-        els.btnCopy?.insertAdjacentElement("afterend", panel);
-      }
+      // ← Insert into body instead of near the copy button
+      document.body.appendChild(panel);
     }
-
+  
     panel.classList.toggle("warning-panel--hidden", warningState.closed);
     panel.classList.remove("warning-panel--exit");
-
+  
     panel.innerHTML = `
       <div class="warning-panel__header">
         <span class="warning-panel__title">⚠️ Heads up</span>
@@ -468,7 +459,7 @@
         `).join("")}
       </ul>
     `;
-
+  
     document.getElementById("warningClose")?.addEventListener("click", () => {
       warningState.closed = true;
       panel.classList.add("warning-panel--hidden");
@@ -900,13 +891,11 @@
     const btn    = els.btnCopy;
     const header = document.querySelector(".app-header");
     if (!btn || !header) return;
-
+  
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const floating = !entry.isIntersecting;
-        btn.classList.toggle("is-floating", floating);
-        const panel = document.getElementById("warningPanel");
-        if (panel) panel.classList.toggle("warning-panel--floating", floating);
+        // Warning panel no longer needs floating toggle
+        btn.classList.toggle("is-floating", !entry.isIntersecting);
       },
       { threshold: 0 }
     );

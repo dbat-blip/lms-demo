@@ -718,17 +718,20 @@
     border-color: #f87171;
   }
   
-  /* ============================================================
-     WARNING PANEL
-     ============================================================ */
-  .warning-panel {
+/* ============================================================
+   WARNING PANEL
+   ============================================================ */
+   .warning-panel {
+    position: fixed;
+    top: 70px; /* sits just below the header */
+    right: 20px;
+    z-index: 1000;
     background: #1c1a14;
     border: 1px solid rgba(251, 191, 36, .30);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
-    margin-top: 8px;
+    width: 300px;
     animation: warning-slide-in .2s ease;
-    max-width: 320px;
   }
   
   .warning-panel--hidden {
@@ -739,14 +742,7 @@
     animation: warning-slide-out .2s ease forwards;
   }
   
-  /* When copy button is floating, warning panel floats beneath it */
-  .warning-panel--floating {
-    position: fixed;
-    top: 56px; /* sits just below the floating copy button */
-    right: 20px;
-    z-index: 999;
-    max-width: 320px;
-  }
+  /* Remove the floating variant — no longer needed */
   
   @keyframes warning-slide-in {
     from { opacity: 0; transform: translateX(12px); }
