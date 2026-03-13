@@ -97,10 +97,12 @@
   // DUPLICATABLE SECTIONS + TOOLTIP DESCRIPTIONS
   // =====================================================================
   const DUPLICATABLE_IDS = new Set([
-    "bannerCta", "featuredSplit", "featuredSplitFilled",
-    "splitHalf", "splitThird", "learnByRole", "essentialImage",
-    "essentialIcon", "rolePathways", "managerToolkit", "resourceHub",
-    "complianceHub", "quickAccess", "faqAccordion", "bannerHero",
+    "bannerHero",
+    "bannerCta",
+    "featuredSplit",
+    "featuredSplitFilled",
+    "splitHalf",
+    "splitThird",
   ]);
 
   const SECTION_TOOLTIPS = {
