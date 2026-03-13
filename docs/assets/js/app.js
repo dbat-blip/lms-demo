@@ -389,6 +389,13 @@
     const next    = new Set();
     const heroIds = ["heroSplit", "heroOverlay"];
 
+    const anySectionEnabled = state.order.some((id) => state.enabled[id]);
+    if (
+      anySectionEnabled &&
+      (!state.primaryColor || state.primaryColor === defaultPrimary) &&
+      (!state.accentColor  || state.accentColor  === defaultAccent)
+    ) next.add("defaultColors");
+    
     // Two heroes
     const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
     if (enabledHeroes.length > 1) next.add("twoHeroes");
