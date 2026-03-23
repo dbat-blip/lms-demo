@@ -69,12 +69,12 @@
 
   const PRESETS = {
     primary: {
-      label: "Full Page",
+      label:   "Full Page",
       tooltip: "An example of a landing page. Add or remove sections as needed",
       sections: ["heroSplit", "myLearningAndSnapshot", "learnByRole", "essentialImage", "featuredSplit", "managerToolkit", "faqAccordion"],
     },
     secondary: {
-      label: "Core",
+      label:   "Core",
       tooltip: "An example of what could go into a secondary page. Add or remove sections as needed",
       sections: ["bannerHero", "quickAccess", "faqAccordion"],
     },
@@ -94,7 +94,14 @@
   };
 
   // =====================================================================
-  // DUPLICATABLE SECTIONS + TOOLTIP DESCRIPTIONS
+  // ROW CONFIG
+  // =====================================================================
+  const ROW_CONFIG = {
+    featureAlternating: { default: 2, min: 1, max: 3 },
+  };
+
+  // =====================================================================
+  // DUPLICATABLE SECTIONS
   // =====================================================================
   const DUPLICATABLE_IDS = new Set([
     "bannerHero",
@@ -105,6 +112,9 @@
     "splitThird",
   ]);
 
+  // =====================================================================
+  // SECTION TOOLTIPS
+  // =====================================================================
   const SECTION_TOOLTIPS = {
     heroSplit:             "Full-width background image with a right-aligned content panel. Best used as the primary landing page opener.",
     heroOverlay:           "Full-width darkened image with a centered headline and CTA button. Bold and direct landing page opener.",
@@ -121,6 +131,7 @@
     quickAccess:           "Two-row image tile grid for fast navigation to frequently visited content, tools, or learning objects.",
     featuredSplit:         "Single featured item with an image on the left and title, description, and CTA on the right.",
     featuredSplitFilled:   "Same as Featured Split with a filled brand-color background treatment for more visual impact.",
+    featureAlternating:    "Alternating rows of text and image. Rows flip between text-left and text-right. Good for showcasing multiple training offerings.",
     videoAndSnapshot:      "Two-column layout with a video embed on the left and the daily snapshot gadget on the right.",
     splitHalf:             "Two equal 50/50 columns. Each side can hold a gadget, video embed, or be left empty.",
     splitThird:            "Two columns at a 66/33 split. Useful for a video or main content with a narrower sidebar gadget.",
@@ -273,7 +284,7 @@
     enabled:        Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled])),
     order:          blocks.map((b) => b.id),
     tileCounts:     Object.fromEntries(Object.entries(TILE_CONFIG).map(([id, cfg]) => [id, cfg.default])),
-    // Duplicate section state keyed by instanceId e.g. "featuredSplit__2"
+    rowCounts:      Object.fromEntries(Object.entries(ROW_CONFIG).map(([id, cfg]) => [id, cfg.default])),
     duplicates:     {},
   };
 
@@ -282,18 +293,14 @@
   // =====================================================================
   // DUPLICATE HELPERS
   // =====================================================================
-
-  // Returns the base ID from an instance ID e.g. "featuredSplit__2" → "featuredSplit"
   function baseId(instanceId) {
     return instanceId.split("__")[0];
   }
 
-  // Returns all instance IDs for a base ID (including the original)
   function instancesOf(bId) {
     return state.order.filter((id) => baseId(id) === bId);
   }
 
-  // Creates a duplicate entry in state
   function createDuplicate(bId) {
     const existing = instancesOf(bId);
     if (existing.length >= 3) return;
@@ -303,10 +310,8 @@
     const origBlock = blocks.find((b) => b.id === bId);
     if (!origBlock) return;
 
-    // Register new block instance
     blocks.push({ ...origBlock, id: newId, _isDuplicate: true, _baseId: bId });
 
-    // Copy state from original
     state.enabled[newId] = true;
     state.duplicates[newId] = {
       splitSlots: bId === "splitHalf" || bId === "splitThird"
@@ -316,7 +321,6 @@
       faqItems:  bId === "faqAccordion" ? state.faqItems.map(i => ({ ...i })) : null,
     };
 
-    // Insert immediately after the last instance of this base ID
     const lastIdx = state.order.lastIndexOf(existing[existing.length - 1]);
     state.order.splice(lastIdx + 1, 0, newId);
 
@@ -334,7 +338,6 @@
     renderAll();
   }
 
-  // Gets the effective state for a duplicate split section
   function getDuplicateSplitState(instanceId) {
     if (state.duplicates[instanceId]?.splitSlots) {
       return state.duplicates[instanceId].splitSlots;
@@ -343,7 +346,6 @@
     return state[bId] || { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
   }
 
-  // Gets the effective tile count for a duplicate tile section
   function getDuplicateTileCount(instanceId) {
     if (state.duplicates[instanceId]?.tileCount != null) {
       return state.duplicates[instanceId].tileCount;
@@ -351,7 +353,6 @@
     return TILE_CONFIG[baseId(instanceId)]?.default ?? 3;
   }
 
-  // Gets the effective FAQ items for a duplicate FAQ section
   function getDuplicateFaqItems(instanceId) {
     if (state.duplicates[instanceId]?.faqItems) {
       return state.duplicates[instanceId].faqItems;
@@ -377,25 +378,23 @@
     },
   };
 
-  // Closed state persists — only reopens when a NEW warning appears
   const warningState = {
-    active:   new Set(),   // currently active warning IDs
-    seen:     new Set(),   // warnings the user has already been shown
-    closed:   false,
+    active: new Set(),
+    seen:   new Set(),
+    closed: false,
   };
 
   function evaluateWarnings() {
-    const prev    = new Set(warningState.active);
-    const next    = new Set();
-    const heroIds = ["heroSplit", "heroOverlay"];
-  
+    const prev           = new Set(warningState.active);
+    const next           = new Set();
+    const heroIds        = ["heroSplit", "heroOverlay"];
     const defaultPrimary = "#37352a";
     const defaultAccent  = "#ff7a52";
-  
+
     // Two heroes
     const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
     if (enabledHeroes.length > 1) next.add("twoHeroes");
-  
+
     // Placeholder tiles
     Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
       const count        = state.tileCounts[id] ?? cfg.default;
@@ -404,7 +403,7 @@
       const dataCount    = Array.isArray(source) ? source.length : 0;
       if (state.enabled[id] && count > dataCount) next.add("placeholderTiles");
     });
-  
+
     // Default colors — only warn if at least one section is enabled
     const anySectionEnabled = state.order.some((id) => state.enabled[id]);
     if (
@@ -412,25 +411,24 @@
       (!state.primaryColor || state.primaryColor === defaultPrimary) &&
       (!state.accentColor  || state.accentColor  === defaultAccent)
     ) next.add("defaultColors");
-  
-    // Check if any NEW warnings appeared
+
     const hasNew = [...next].some((id) => !prev.has(id));
     warningState.active = next;
-  
+
     if (hasNew && next.size > 0) {
       warningState.closed = false;
     }
-  
+
     [...prev].forEach((id) => {
       if (!next.has(id)) warningState.seen.delete(id);
     });
-  
+
     renderWarnings();
   }
 
   function renderWarnings() {
     let panel = document.getElementById("warningPanel");
-  
+
     if (warningState.active.size === 0) {
       if (panel) {
         panel.classList.add("warning-panel--exit");
@@ -438,18 +436,17 @@
       }
       return;
     }
-  
+
     if (!panel) {
       panel = document.createElement("div");
       panel.id        = "warningPanel";
       panel.className = "warning-panel";
-      // ← Insert into body instead of near the copy button
       document.body.appendChild(panel);
     }
-  
+
     panel.classList.toggle("warning-panel--hidden", warningState.closed);
     panel.classList.remove("warning-panel--exit");
-  
+
     panel.innerHTML = `
       <div class="warning-panel__header">
         <span class="warning-panel__title">⚠️ Heads up</span>
@@ -461,7 +458,7 @@
         `).join("")}
       </ul>
     `;
-  
+
     document.getElementById("warningClose")?.addEventListener("click", () => {
       warningState.closed = true;
       panel.classList.add("warning-panel--hidden");
@@ -480,7 +477,7 @@
   // TILE HTML GENERATION
   // =====================================================================
   function buildTileRowsHtml(sectionId, instanceId) {
-    const cfg          = TILE_CONFIG[sectionId];
+    const cfg = TILE_CONFIG[sectionId];
     if (!cfg) return "";
 
     const industryData = getIndustryData();
@@ -489,8 +486,7 @@
       ? getDuplicateTileCount(instanceId)
       : (state.tileCounts[sectionId] ?? cfg.default);
 
-    const sourceArray  = resolveToken(cfg.dataKey, industryData);
-    const tilesPerRow  = 4;
+    const sourceArray = resolveToken(cfg.dataKey, industryData);
 
     const tiles = [];
     for (let i = 0; i < count; i++) {
@@ -647,12 +643,11 @@
         <div class="tile-controls">
           <button type="button" class="btn btn-small tile-btn-remove" data-instance="${instanceId}" ${count <= cfg.min ? "disabled" : ""} title="Remove tile">−</button>
           <span class="tile-count-display">${count}</span>
-          <button type="button" class="btn btn-small tile-btn-add"    data-instance="${instanceId}" ${count >= cfg.max ? "disabled" : ""} title="Add tile">+</button>
+          <button type="button" class="btn btn-small tile-btn-add" data-instance="${instanceId}" ${count >= cfg.max ? "disabled" : ""} title="Add tile">+</button>
         </div>
         <div class="hint">Min ${cfg.min} · Max ${cfg.max}. Tiles beyond the industry preset will use placeholder content.</div>
       </div>
     `;
-
     container.appendChild(wrap);
 
     wrap.querySelector(".tile-btn-add")?.addEventListener("click", () => {
@@ -689,6 +684,118 @@
   }
 
   // =====================================================================
+  // ROW EDITOR
+  // =====================================================================
+  function renderRowEditor(instanceId) {
+    const bId = baseId(instanceId);
+    const cfg = ROW_CONFIG[bId];
+    if (!cfg) return;
+
+    const container = document.getElementById(`rowEditor-${instanceId}`);
+    if (!container) return;
+
+    container.style.display = state.enabled[instanceId] ? "block" : "none";
+    container.innerHTML     = "";
+
+    const count = state.rowCounts[bId] ?? cfg.default;
+
+    const wrap = document.createElement("div");
+    wrap.className = "icon-editor";
+    wrap.innerHTML = `
+      <div class="field">
+        <label>Number of rows</label>
+        <div class="tile-controls">
+          <button type="button" class="btn btn-small row-btn-remove" data-instance="${instanceId}" ${count <= cfg.min ? "disabled" : ""} title="Remove row">−</button>
+          <span class="tile-count-display">${count}</span>
+          <button type="button" class="btn btn-small row-btn-add" data-instance="${instanceId}" ${count >= cfg.max ? "disabled" : ""} title="Add row">+</button>
+        </div>
+        <div class="hint">Min ${cfg.min} · Max ${cfg.max}. Rows alternate between text-left and text-right.</div>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    wrap.querySelector(".row-btn-add")?.addEventListener("click", () => {
+      if (state.rowCounts[bId] < cfg.max) {
+        state.rowCounts[bId]++;
+        renderRowEditor(instanceId);
+        renderAll();
+      }
+    });
+
+    wrap.querySelector(".row-btn-remove")?.addEventListener("click", () => {
+      if (state.rowCounts[bId] > cfg.min) {
+        state.rowCounts[bId]--;
+        renderRowEditor(instanceId);
+        renderAll();
+      }
+    });
+  }
+
+  // =====================================================================
+  // FEATURE ALTERNATING HTML
+  // =====================================================================
+  function buildAlternatingRowsHtml(instanceId) {
+    const bId        = baseId(instanceId);
+    const cfg        = ROW_CONFIG[bId];
+    if (!cfg) return "";
+
+    const industryData = getIndustryData();
+    const count        = state.rowCounts[bId] ?? cfg.default;
+    const rows         = resolveToken("featureAlternating.rows", industryData);
+
+    let html = "";
+    for (let i = 0; i < count; i++) {
+      const row      = Array.isArray(rows) ? rows[i] : null;
+      const eyebrow  = row?.eyebrow  || "Eyebrow";
+      const headline = row?.headline || "Headline goes here";
+      const body     = row?.body     || "Update this text in the LMS editor.";
+      const imageUrl = row?.imageUrl || PLACEHOLDER_IMAGE;
+      const isEven   = i % 2 === 0;
+
+      const textCol = `
+        <div class="column feat-alt__text">
+          <div class="feat-alt__text-inner">
+            <span class="feat-alt__eyebrow">${eyebrow}</span>
+            <h2 class="feat-alt__headline">${headline}</h2>
+            <p class="feat-alt__body">${body}</p>
+          </div>
+        </div>`.trim();
+
+      const imageCol = `
+        <div class="column feat-alt__image">
+          <img src="${imageUrl}" alt="" class="feat-alt__img" />
+        </div>`.trim();
+
+      html += `
+<div class="row feat-alt__row" data-section-id="feat-alt-${i}">
+  ${isEven ? `${textCol}\n  ${imageCol}` : `${imageCol}\n  ${textCol}`}
+</div>`.trim();
+      html += "\n";
+    }
+    return html;
+  }
+
+  function buildFeatureAlternatingHtml(instanceId) {
+    const industryData = getIndustryData();
+    const heading      = resolveToken("featureAlternating.heading",    industryData) || "Featured Training";
+    const subheading   = resolveToken("featureAlternating.subheading", industryData) || "";
+    const rows         = buildAlternatingRowsHtml(instanceId);
+    const spacer       = `<div class="row" data-section-id="spacer-40">
+  <div class="column"><div class="spacer height-40"></div></div>
+</div>`;
+
+    return `
+<div class="row" data-section-id="feature-alternating-head">
+  <div class="column sectionheadline">
+    <h2>${heading}</h2>
+    <p>${subheading}</p>
+  </div>
+</div>
+${rows}
+${spacer}`.trim();
+  }
+
+  // =====================================================================
   // HERO IMAGE
   // =====================================================================
   function resolveHeroImageUrl() {
@@ -705,13 +812,11 @@
   function renderHeroImagePreview() {
     const container = document.getElementById("heroImagePreview");
     if (!container) return;
-
     const url = resolveHeroImageUrl();
     if (!url) {
       container.innerHTML = "";
       return;
     }
-
     container.innerHTML = `
       <div class="hero-image-preview">
         <img
@@ -730,9 +835,9 @@
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const iid        = instanceId || sectionId;
+    const iid         = instanceId || sectionId;
     const isDuplicate = iid !== sectionId;
-    const slotState  = isDuplicate ? getDuplicateSplitState(iid) : state[sectionId];
+    const slotState   = isDuplicate ? getDuplicateSplitState(iid) : state[sectionId];
 
     container.style.display = state.enabled[iid] ? "block" : "none";
     container.innerHTML     = "";
@@ -743,9 +848,9 @@
     ];
 
     sides.forEach(({ key, embedKey, label }) => {
-      const field    = document.createElement("div");
+      const field     = document.createElement("div");
       field.className = "field";
-      const labelEl  = document.createElement("label");
+      const labelEl   = document.createElement("label");
       labelEl.textContent = label;
       field.appendChild(labelEl);
 
@@ -811,8 +916,10 @@
       if (key === "HERO_SUBHEAD")               return state.heroSubhead  || "";
       if (key === "videoAndSnapshot.embedCode") return state.videoEmbedCode || "";
 
-      // Split slots — respect duplicate state
-      if (key === "splitHalf.left" || key === "splitHalf.right" || key === "splitThird.left" || key === "splitThird.right") {
+      if (
+        key === "splitHalf.left"  || key === "splitHalf.right" ||
+        key === "splitThird.left" || key === "splitThird.right"
+      ) {
         const [sid, side] = key.split(".");
         const embedKey    = side === "left" ? "leftEmbed" : "rightEmbed";
         const iid         = instanceId || sid;
@@ -840,7 +947,6 @@
     if (!container || !toggle) return;
 
     const enabledIds = state.order.filter((id) => state.enabled[id]);
-
     container.style.display = outlineOpen ? "block" : "none";
     toggle.textContent      = outlineOpen ? "Page Outline ↑" : "Page Outline ↓";
 
@@ -857,9 +963,9 @@
       const hasPlaceholder = (() => {
         const cfg = TILE_CONFIG[bId];
         if (!cfg || !state.enabled[id]) return false;
-        const count      = id !== bId ? getDuplicateTileCount(id) : (state.tileCounts[bId] ?? cfg.default);
-        const source     = resolveToken(cfg.dataKey, getIndustryData());
-        const dataCount  = Array.isArray(source) ? source.length : 0;
+        const count     = id !== bId ? getDuplicateTileCount(id) : (state.tileCounts[bId] ?? cfg.default);
+        const source    = resolveToken(cfg.dataKey, getIndustryData());
+        const dataCount = Array.isArray(source) ? source.length : 0;
         return count > dataCount;
       })();
 
@@ -870,6 +976,9 @@
       } else if (bId === "faqAccordion") {
         const items = id !== bId ? getDuplicateFaqItems(id) : state.faqItems;
         meta = `<span class="outline-meta">${items.length} item${items.length !== 1 ? "s" : ""}</span>`;
+      } else if (ROW_CONFIG[bId]) {
+        const count = state.rowCounts[bId] ?? ROW_CONFIG[bId].default;
+        meta = `<span class="outline-meta">${count} row${count !== 1 ? "s" : ""}</span>`;
       }
 
       const label = block._isDuplicate
@@ -887,18 +996,66 @@
   }
 
   // =====================================================================
+  // TOOLTIP PORTAL
+  // =====================================================================
+  function initTooltip() {
+    let tooltipEl = document.getElementById("tooltipPortal");
+    if (!tooltipEl) {
+      tooltipEl = document.createElement("div");
+      tooltipEl.id        = "tooltipPortal";
+      tooltipEl.className = "tooltip-portal";
+      document.body.appendChild(tooltipEl);
+    }
+
+    document.addEventListener("mouseover", (e) => {
+      const target = e.target.closest("[data-tooltip]");
+      if (!target) return;
+      tooltipEl.textContent   = target.getAttribute("data-tooltip");
+      tooltipEl.style.display = "block";
+      positionTooltip(tooltipEl, target);
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (tooltipEl.style.display === "none") return;
+      const target = e.target.closest("[data-tooltip]");
+      if (!target) return;
+      positionTooltip(tooltipEl, target);
+    });
+
+    document.addEventListener("mouseout", (e) => {
+      const target = e.target.closest("[data-tooltip]");
+      if (!target) return;
+      tooltipEl.style.display = "none";
+    });
+  }
+
+  function positionTooltip(tooltipEl, target) {
+    const rect = target.getBoundingClientRect();
+    const tipW = 240;
+    const gap  = 10;
+
+    let top  = rect.top + window.scrollY - tooltipEl.offsetHeight - gap;
+    let left = rect.left + window.scrollX + (rect.width / 2) - (tipW / 2);
+
+    const viewW = window.innerWidth;
+    if (left + tipW > viewW - 12) left = viewW - tipW - 12;
+    if (left < 12) left = 12;
+    if (top < window.scrollY + 12) top = rect.bottom + window.scrollY + gap;
+
+    tooltipEl.style.top  = `${top}px`;
+    tooltipEl.style.left = `${left}px`;
+  }
+
+  // =====================================================================
   // FLOATING COPY BUTTON
   // =====================================================================
   function initFloatingCopyBtn() {
     const btn    = els.btnCopy;
     const header = document.querySelector(".app-header");
     if (!btn || !header) return;
-  
+
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Warning panel no longer needs floating toggle
-        btn.classList.toggle("is-floating", !entry.isIntersecting);
-      },
+      ([entry]) => btn.classList.toggle("is-floating", !entry.isIntersecting),
       { threshold: 0 }
     );
     observer.observe(header);
@@ -922,6 +1079,7 @@
     renderAll();
     initFloatingCopyBtn();
     initOutlineToggle();
+    initTooltip();
   }
 
   async function loadUniversalCss() {
@@ -986,7 +1144,6 @@
     document.getElementById("presetPrimary")?.addEventListener("click",   () => applyPreset("primary"));
     document.getElementById("presetSecondary")?.addEventListener("click", () => applyPreset("secondary"));
 
-    // Print button
     document.getElementById("btnPrint")?.addEventListener("click", () => {
       if (typeof window.openPrintSummary === "function") {
         window.openPrintSummary(state, blocks, TILE_CONFIG, getIndustryData, getDuplicateTileCount, getDuplicateFaqItems, baseId, instancesOf);
@@ -1021,9 +1178,10 @@
     renderIconEditor();
     renderHeroEditor();
     renderVideoEditor();
-    renderSplitEditor("splitHalf",  "splitHalfEditor");
-    renderSplitEditor("splitThird", "splitThirdEditor");
+    renderSplitEditor("splitHalf",  "splitHalfEditor-splitHalf");
+    renderSplitEditor("splitThird", "splitThirdEditor-splitThird");
     Object.keys(TILE_CONFIG).forEach((id) => renderTileEditor(id));
+    Object.keys(ROW_CONFIG).forEach((id) => renderRowEditor(id));
     renderAll();
   }
 
@@ -1071,28 +1229,28 @@
       const block = blocks.find((b) => b.id === instanceId);
       if (!block) return;
 
-      const isDuplicate    = block._isDuplicate === true;
-      const instanceCount  = instancesOf(bId).length;
-      const canDuplicate   = DUPLICATABLE_IDS.has(bId) && instanceCount < 3 && !isDuplicate;
-      const tooltip        = SECTION_TOOLTIPS[bId] || "";
+      const isDuplicate   = block._isDuplicate === true;
+      const instanceCount = instancesOf(bId).length;
+      const canDuplicate  = DUPLICATABLE_IDS.has(bId) && instanceCount < 3 && !isDuplicate;
+      const tooltip       = SECTION_TOOLTIPS[bId] || "";
 
       const row = document.createElement("div");
       row.className = "block-row";
       if (!industrySelected) row.classList.add("block-row--disabled");
 
-      // ── Left: checkbox + label + tooltip ─────────────────────────
-      const left       = document.createElement("div");
-      left.className   = "block-row__left";
+      // Left: checkbox + label + tooltip
+      const left     = document.createElement("div");
+      left.className = "block-row__left";
 
-      const checkbox   = document.createElement("input");
-      checkbox.type    = "checkbox";
-      checkbox.checked = !!state.enabled[instanceId];
+      const checkbox    = document.createElement("input");
+      checkbox.type     = "checkbox";
+      checkbox.checked  = !!state.enabled[instanceId];
       checkbox.disabled = !industrySelected;
 
-      const labelWrap  = document.createElement("div");
+      const labelWrap     = document.createElement("div");
       labelWrap.className = "block-row__label-wrap";
 
-      const labelEl    = document.createElement("div");
+      const labelEl       = document.createElement("div");
       labelEl.className   = "block-row__label";
       labelEl.textContent = isDuplicate
         ? `${blocks.find((b) => b.id === bId)?.name || bId} (${instanceId.split("__")[1]})`
@@ -1100,7 +1258,6 @@
 
       labelWrap.appendChild(labelEl);
 
-      // Tooltip info icon
       if (tooltip && !isDuplicate) {
         const info = document.createElement("span");
         info.className   = "block-row__info";
@@ -1112,9 +1269,9 @@
       left.appendChild(checkbox);
       left.appendChild(labelWrap);
 
-      // ── Right: Up/Down + Duplicate + Remove ───────────────────────
-      const right       = document.createElement("div");
-      right.className   = "block-row__right";
+      // Right: Up/Down + Duplicate + Remove
+      const right     = document.createElement("div");
+      right.className = "block-row__right";
 
       right.appendChild(button("↑", () => move(index, -1)));
       right.appendChild(button("↓", () => move(index, +1)));
@@ -1127,7 +1284,6 @@
       }
 
       if (isDuplicate) {
-        // Show ⊕ only if not at max
         if (instanceCount < 3) {
           const dupBtn = button("⊕", () => createDuplicate(bId));
           dupBtn.title = "Duplicate section";
@@ -1147,13 +1303,14 @@
         if (!industrySelected) return;
         state.enabled[instanceId] = checkbox.checked;
 
-        if (bId === "faqAccordion")                                    renderFaqEditor(instanceId);
-        if (bId === "essentialIcon")                                   renderIconEditor();
-        if (["heroSplit", "heroOverlay"].includes(bId))                renderHeroEditor();
-        if (bId === "splitHalf")                                       renderSplitEditor("splitHalf",  `splitHalfEditor-${instanceId}`,  instanceId);
-        if (bId === "splitThird")                                      renderSplitEditor("splitThird", `splitThirdEditor-${instanceId}`, instanceId);
-        if (bId === "videoAndSnapshot")                                renderVideoEditor();
-        if (TILE_CONFIG[bId])                                          renderTileEditor(instanceId);
+        if (bId === "faqAccordion")                             renderFaqEditor(instanceId);
+        if (bId === "essentialIcon")                            renderIconEditor();
+        if (["heroSplit", "heroOverlay"].includes(bId))         renderHeroEditor();
+        if (bId === "splitHalf")                                renderSplitEditor("splitHalf",  `splitHalfEditor-${instanceId}`,  instanceId);
+        if (bId === "splitThird")                               renderSplitEditor("splitThird", `splitThirdEditor-${instanceId}`, instanceId);
+        if (bId === "videoAndSnapshot")                         renderVideoEditor();
+        if (TILE_CONFIG[bId])                                   renderTileEditor(instanceId);
+        if (ROW_CONFIG[bId])                                    renderRowEditor(instanceId);
 
         syncSelectAll();
         renderAll();
@@ -1161,7 +1318,7 @@
 
       els.blockList.appendChild(row);
 
-      // ── Editor mounts ──────────────────────────────────────────────
+      // Editor mounts
       if (bId === "faqAccordion") {
         const mount = document.createElement("div");
         mount.id    = `faqEditor-${instanceId}`;
@@ -1209,6 +1366,13 @@
         mount.id    = `tileEditor-${instanceId}`;
         els.blockList.appendChild(mount);
         renderTileEditor(instanceId);
+      }
+
+      if (ROW_CONFIG[bId]) {
+        const mount = document.createElement("div");
+        mount.id    = `rowEditor-${instanceId}`;
+        els.blockList.appendChild(mount);
+        renderRowEditor(instanceId);
       }
     });
 
@@ -1277,7 +1441,7 @@
   // FAQ EDITOR
   // =====================================================================
   function renderFaqEditor(instanceId) {
-    const iid       = instanceId || "faqAccordion";
+    const iid         = instanceId || "faqAccordion";
     const containerId = `faqEditor-${iid}`;
     const container   = document.getElementById(containerId);
     if (!container) return;
@@ -1295,8 +1459,8 @@
         <div class="faq-editor-item__header">
           <span class="faq-editor-item__label">FAQ ${index + 1}</span>
           <div class="faq-editor-item__controls">
-            <button type="button" class="btn btn-small" data-faq-up="${index}"     ${index === 0 ? "disabled" : ""}>↑</button>
-            <button type="button" class="btn btn-small" data-faq-down="${index}"   ${index === items.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" class="btn btn-small" data-faq-up="${index}" ${index === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" class="btn btn-small" data-faq-down="${index}" ${index === items.length - 1 ? "disabled" : ""}>↓</button>
             <button type="button" class="btn btn-small btn-danger" data-faq-remove="${index}" ${items.length <= 1 ? "disabled" : ""}>−</button>
           </div>
         </div>
@@ -1313,10 +1477,10 @@
     });
 
     const addBtn = document.createElement("button");
-    addBtn.type        = "button";
-    addBtn.className   = "btn btn-small";
+    addBtn.type            = "button";
+    addBtn.className       = "btn btn-small";
     addBtn.style.marginTop = "8px";
-    addBtn.textContent = "+ Add FAQ Item";
+    addBtn.textContent     = "+ Add FAQ Item";
     addBtn.addEventListener("click", () => {
       items.push({ question: "", answer: "" });
       renderFaqEditor(iid);
@@ -1408,7 +1572,7 @@
   function move(index, delta) {
     const next = index + delta;
     if (next < 0 || next >= state.order.length) return;
-    const copy  = state.order.slice();
+    const copy = state.order.slice();
     [copy[index], copy[next]] = [copy[next], copy[index]];
     state.order = copy;
     renderBlockPicker();
@@ -1573,9 +1737,8 @@
 
     const enabledSections = state.order.filter((id) => state.enabled[id]);
 
-    // Build page title comment
     const pageComment = `<!--\n  Page Sections:\n${enabledSections.map((id) => {
-      const bId   = baseId(id);
+      const bId  = baseId(id);
       const block = blocks.find((b) => b.id === id);
       return `  - ${block?.name || bId}`;
     }).join("\n")}\n  Built with ClearLearn Custom Page Generator\n-->`;
@@ -1585,6 +1748,10 @@
         const bId   = baseId(instanceId);
         const block = blocks.find((b) => b.id === instanceId);
         if (!block) return "";
+
+        if (bId === "featureAlternating") {
+          return buildFeatureAlternatingHtml(instanceId);
+        }
 
         if (TILE_CONFIG[bId]) {
           return buildTileSectionHtml(bId, block, instanceId);
@@ -1615,7 +1782,7 @@
         heading:    resolveToken("resourceHub.heading",    industryData),
         subheading: resolveToken("resourceHub.subheading", industryData),
       },
-      complianceHub:  { heading: resolveToken("complianceHub.subheading",  industryData) },
+      complianceHub:  { heading: resolveToken("complianceHub.subheading", industryData) },
     };
 
     const t        = headingTokens[sectionId] || {};
@@ -1657,7 +1824,9 @@
 
     const vars = `:root {\n  --brandColor:  ${brand};\n  --accentColor: ${accent};\n  --heroHeight:  ${heroHeight};\n}`;
 
-    const flatCss = state.flatCorners ? `\n/* FLAT CORNERS OVERRIDE */\n*, *::before, *::after { border-radius: 0 !important; }` : "";
+    const flatCss = state.flatCorners
+      ? `\n/* FLAT CORNERS OVERRIDE */\n*, *::before, *::after { border-radius: 0 !important; }`
+      : "";
 
     const iconColorCss = state.enabled["essentialIcon"] && sanitizeColor(state.iconColor, "")
       ? `\n\n/* Icon color override */\n.card_box_icon svg path { fill: ${sanitizeColor(state.iconColor, "")} !important; }`
@@ -1725,7 +1894,7 @@
     state.splitThird     = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
     state.faqItems       = DEFAULT_FAQ_ITEMS.map(item => ({ ...item }));
 
-    // Remove all duplicates from order and blocks
+    // Remove all duplicates
     const dupIds = state.order.filter((id) => id.includes("__"));
     dupIds.forEach((id) => {
       const idx = blocks.findIndex((b) => b.id === id);
@@ -1735,9 +1904,14 @@
     state.enabled    = Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled]));
     state.order      = blocks.map((b) => b.id);
 
-    // Reset tile counts to defaults
+    // Reset tile counts
     Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
       state.tileCounts[id] = cfg.default;
+    });
+
+    // Reset row counts
+    Object.entries(ROW_CONFIG).forEach(([id, cfg]) => {
+      state.rowCounts[id] = cfg.default;
     });
 
     const selectAll = document.getElementById("selectAll");
@@ -1752,6 +1926,7 @@
     renderSplitEditor("splitHalf",  "splitHalfEditor-splitHalf");
     renderSplitEditor("splitThird", "splitThirdEditor-splitThird");
     Object.keys(TILE_CONFIG).forEach((id) => renderTileEditor(id));
+    Object.keys(ROW_CONFIG).forEach((id) => renderRowEditor(id));
     renderAll();
   }
 

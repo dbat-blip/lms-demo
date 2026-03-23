@@ -256,6 +256,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/f4/2c/47WqrbV7_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for the Job Site",
+                subheading: "Courses built around what construction workers and supervisors actually need to know.",
+                rows: [
+                  {
+                    eyebrow: "Safety Training",
+                    headline: "Know the hazards before you get on site",
+                    body: "Required safety courses covering fall protection, PPE, and jobsite hazard recognition. Complete your assignments before your next shift.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Compliance",
+                    headline: "Keep your certifications current",
+                    body: "Track your OSHA requirements, renew certifications, and stay ahead of your compliance deadlines — all from one place.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Leadership & Supervision",
+                    headline: "Tools for the people running the crew",
+                    body: "Courses on crew communication, incident reporting, and managing performance on site. Built for foremen and supervisors stepping into broader responsibility.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // RETAIL
@@ -397,6 +421,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/9d/69/WnPNIYAX_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for the Sales Floor",
+                subheading: "Practical courses for store associates, shift leads, and managers.",
+                rows: [
+                  {
+                    eyebrow: "Customer Service",
+                    headline: "Handle every customer interaction with confidence",
+                    body: "Courses covering service standards, de-escalation, and how to turn a difficult interaction into a good one. Required for all floor associates.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Loss Prevention",
+                    headline: "Recognize and respond to shrink",
+                    body: "Learn how to identify theft indicators, follow proper reporting procedures, and protect store assets without putting yourself or others at risk.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Manager Development",
+                    headline: "Lead your team through the busy season and beyond",
+                    body: "Scheduling, coaching conversations, and performance documentation. Courses designed for shift leads and store managers who are growing into their roles.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // HEALTHCARE
@@ -538,6 +586,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/e3/78/dW2NwbFD_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for Patient Care",
+                subheading: "Compliance, safety, and development courses for clinical and support staff.",
+                rows: [
+                  {
+                    eyebrow: "Clinical Compliance",
+                    headline: "Stay current on the requirements that protect patients and staff",
+                    body: "HIPAA, infection control, and mandatory reporting — complete your required compliance training and keep your records up to date.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Patient Safety",
+                    headline: "Reduce risk at every point of care",
+                    body: "Courses on medication administration, fall prevention, and handoff communication. Practical training built around real clinical scenarios.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Staff Development",
+                    headline: "Build the skills that advance your career",
+                    body: "Leadership fundamentals, conflict resolution, and communication courses for nurses, technicians, and administrators looking to grow.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // MANUFACTURING
@@ -679,6 +751,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/fc/2f/8G34os5B_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for the Plant Floor",
+                subheading: "Safety, process, and leadership courses for operators, technicians, and supervisors.",
+                rows: [
+                  {
+                    eyebrow: "Safety & OSHA",
+                    headline: "Work safely every shift",
+                    body: "Lockout/tagout, machine guarding, and hazard communication — complete your required safety training and know what to do when something goes wrong.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Quality & Process",
+                    headline: "Understand the standards that keep production running",
+                    body: "Courses on quality control procedures, defect recognition, and process documentation. Know your role in keeping output consistent and on spec.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Supervisor Training",
+                    headline: "Step into your leadership role prepared",
+                    body: "Incident investigation, shift handoff, and team accountability. For supervisors and leads managing people and production targets day to day.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // RESTAURANT
@@ -820,6 +916,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/ff/fa/dQJ5dyn6_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for Front and Back of House",
+                subheading: "Food safety, compliance, and leadership courses for your entire team.",
+                rows: [
+                  {
+                    eyebrow: "Food Safety",
+                    headline: "Keep every shift safe from the first prep to the last plate",
+                    body: "ServSafe-aligned courses on temperature control, cross-contamination, and proper sanitation. Required for all kitchen and prep staff.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Alcohol Compliance",
+                    headline: "Serve responsibly and stay compliant",
+                    body: "Training on checking IDs, recognizing intoxication, and understanding your liability. Required for all staff who handle alcohol service.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Team Leadership",
+                    headline: "Run a smooth shift from open to close",
+                    body: "Courses on shift management, handling difficult guests, and coaching your team under pressure. For leads and managers stepping up.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // ENERGY
@@ -961,6 +1081,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/19/e4/tJRJM0Nc_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for Field and Facility",
+                subheading: "Safety, environmental compliance, and technical courses for energy sector workers.",
+                rows: [
+                  {
+                    eyebrow: "Safety & OSHA",
+                    headline: "Know the protocols that keep you and your team safe",
+                    body: "Electrical safety, confined space entry, and emergency response procedures. Complete your required training before going into the field.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Environmental Compliance",
+                    headline: "Understand your responsibilities in the field",
+                    body: "Spill response, waste handling, and environmental reporting — courses that cover what you are required to know and how to document it correctly.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Technical Skills",
+                    headline: "Stay sharp on the equipment and systems you work with",
+                    body: "Technical training on systems operation, maintenance procedures, and troubleshooting. Built for technicians and operators in the field and at the facility.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // ENGINEERING
@@ -1102,6 +1246,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/e3/8a/SkRzMhmE_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for Engineers and Project Teams",
+                subheading: "Technical, compliance, and leadership development for engineers at every level.",
+                rows: [
+                  {
+                    eyebrow: "Technical Skills",
+                    headline: "Keep your technical knowledge current",
+                    body: "Courses covering tools, methodologies, and emerging standards relevant to your discipline. Assigned based on your role and project requirements.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Project Management",
+                    headline: "Deliver projects on time and within scope",
+                    body: "Risk assessment, stakeholder communication, and change management. Practical courses for engineers who are leading projects or moving into that role.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Safety",
+                    headline: "Understand the safety requirements for your work environment",
+                    body: "Site safety, hazard identification, and incident reporting procedures. Required for engineers working on-site or in regulated environments.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // TECH
@@ -1243,6 +1411,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/19/e4/tJRJM0Nc_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for Your Role and Your Team",
+                subheading: "Security, compliance, and leadership courses for tech employees and people managers.",
+                rows: [
+                  {
+                    eyebrow: "Security Awareness",
+                    headline: "Recognize threats before they become incidents",
+                    body: "Phishing, social engineering, and data handling — required annual training for all employees. Takes about 30 minutes and needs to be completed by your due date.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Compliance",
+                    headline: "Know the policies that apply to your work",
+                    body: "Privacy regulations, acceptable use, and code of conduct training. Assigned based on your role and renewed annually or when policies are updated.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Leadership",
+                    headline: "Build the skills to lead effectively",
+                    body: "Courses on giving feedback, managing remote teams, and navigating performance conversations. For team leads and managers at all levels.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
         // -------------------------------
         // PHARMACEUTICALS
@@ -1384,6 +1576,30 @@
               ctaUrl:   "#",
               imageUrl: "https://images2.imgbox.com/19/e4/tJRJM0Nc_o.jpg",
             },
+            featureAlternating: {
+                heading: "Training for a Regulated Environment",
+                subheading: "GMP, safety, and quality courses for lab, manufacturing, and support staff.",
+                rows: [
+                  {
+                    eyebrow: "GMP & Regulatory",
+                    headline: "Understand the standards your work depends on",
+                    body: "Good Manufacturing Practice training covering documentation, deviation reporting, and FDA compliance requirements. Required for all production and lab staff.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Lab Safety",
+                    headline: "Work safely with hazardous materials every day",
+                    body: "Chemical handling, biosafety protocols, and emergency procedures. Complete your required training before working with controlled substances or in restricted areas.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                  {
+                    eyebrow: "Quality Assurance",
+                    headline: "Your role in keeping quality consistent",
+                    body: "Inspection procedures, batch record review, and corrective action processes. Courses for QA staff and anyone involved in product release or review.",
+                    imageUrl: "https://images2.imgbox.com/1b/d5/X6R7pk31_o.jpeg",
+                  },
+                ],
+              },
         },
     }; // end LMS_INDUSTRY_DATA
 })();

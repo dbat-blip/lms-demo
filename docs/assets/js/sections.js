@@ -329,6 +329,11 @@
   </div>`.trim();
         },
       },
+      {
+        id: "featureAlternating",
+        name: "Feature — Alternating",
+        defaultEnabled: false,
+      },
     ];
   
     window.LMS_SECTIONS_BY_ID = window.LMS_SECTIONS.reduce((acc, s) => {
