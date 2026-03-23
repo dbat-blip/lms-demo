@@ -342,6 +342,7 @@
    .feat-alt__row {
 	display: flex !important;
 	align-items: stretch;
+	height: 380px;        /* ← fixed height instead of min-height */
 	min-height: 380px;
 	margin-bottom: 16px;
 	border-radius: 12px;
@@ -400,11 +401,13 @@
   }
   
   /* Image column */
+  
   .feat-alt__image {
 	padding: 0 !important;
 	margin: 0 !important;
 	overflow: hidden;
 	position: relative;
+	min-height: 380px; /* ← matches the row min-height */
   }
   
   .feat-alt__img {
