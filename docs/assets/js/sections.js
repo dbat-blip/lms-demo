@@ -180,6 +180,17 @@
     <div class="column"><div class="spacer height-40"></div></div>
   </div>`.trim(),
       },
+      
+      {
+        id: "featureAlternating",
+        name: "Feature — Alternating",
+        defaultEnabled: false,
+      },
+      {
+        id: "gridTwoByTwo",
+        name: "2×2 Grid",
+        defaultEnabled: false,
+      },
   
       {
         id: "quickAccess",
@@ -328,11 +339,6 @@
     <div class="column"><div class="spacer height-40"></div></div>
   </div>`.trim();
         },
-      },
-      {
-        id: "featureAlternating",
-        name: "Feature — Alternating",
-        defaultEnabled: false,
       },
     ];
   
