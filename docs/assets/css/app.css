@@ -901,6 +901,10 @@
   #grid2x2Editor-gridTwoByTwo > div > div > div.tile-controls{
     gap:30px
     }
+    .g2x2-btn{
+      padding: 20px 30px;
+        border-radius: 6px;
+      }
   
   /* ============================================================
      COPY WRAPPER — anchors warning panel position
