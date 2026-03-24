@@ -854,23 +854,46 @@
 	grid-template-rows: 1fr;
   }
   
-  .g2x2__cell {
-	padding: 40px 44px;
-	background: #ffffff;
-	position: relative;
-  }
-  
-  /* Cross dividers using outline/border on cells */
-  .g2x2__grid--4 .g2x2__cell:nth-child(1),
-  .g2x2__grid--4 .g2x2__cell:nth-child(2) {
-	border-bottom: 1px solid rgba(0, 0, 0, .10);
-  }
-  
-  .g2x2__grid--4 .g2x2__cell:nth-child(1),
-  .g2x2__grid--4 .g2x2__cell:nth-child(3),
-  .g2x2__grid--2 .g2x2__cell:nth-child(1) {
-	border-right: 1px solid rgba(0, 0, 0, .10);
-  }
+	/* Base cell — no padding, borders handle dividers */
+	.g2x2__cell {
+		background: #ffffff;
+		position: relative;
+	}
+
+	/* ── 4-cell padding per position ── */
+	/* Top-left: top, right, bottom */
+	.g2x2__grid--4 .g2x2__cell:nth-child(1) {
+		padding: 40px 40px 40px 0;
+		border-right:  1px solid rgba(0, 0, 0, .10);
+		border-bottom: 1px solid rgba(0, 0, 0, .10);
+	}
+
+	/* Top-right: top, left, bottom */
+	.g2x2__grid--4 .g2x2__cell:nth-child(2) {
+		padding: 40px 0 40px 40px;
+		border-bottom: 1px solid rgba(0, 0, 0, .10);
+	}
+
+	/* Bottom-left: top, right, bottom */
+	.g2x2__grid--4 .g2x2__cell:nth-child(3) {
+		padding: 40px 40px 40px 0;
+		border-right: 1px solid rgba(0, 0, 0, .10);
+	}
+
+	/* Bottom-right: top, left, bottom */
+	.g2x2__grid--4 .g2x2__cell:nth-child(4) {
+		padding: 40px 0 40px 40px;
+	}
+
+	/* ── 2-cell padding per position ── */
+	.g2x2__grid--2 .g2x2__cell:nth-child(1) {
+		padding: 40px 40px 40px 0;
+		border-right: 1px solid rgba(0, 0, 0, .10);
+	}
+
+	.g2x2__grid--2 .g2x2__cell:nth-child(2) {
+		padding: 40px 0 40px 40px;
+	}
   
   .g2x2__icon {
 	width: 40px;
