@@ -902,8 +902,8 @@
     gap:30px
     }
     .g2x2-btn{
-      padding: 20px 30px;
-        border-radius: 6px;
+      padding: 20px 30px !important;
+        border-radius: 6px !important;
       }
   
   /* ============================================================
