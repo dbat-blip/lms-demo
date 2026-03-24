@@ -943,6 +943,21 @@
 	gap: 8px;
   }
 
+  .feat-alt__cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 24px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--brandColor, #1a1a1a);
+	text-decoration: none;
+	transition: gap .15s ease;
+  }
+  
+  .feat-alt__cta:hover {
+	gap: 8px;
+  }
 
   
   /* Responsive */

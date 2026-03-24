@@ -838,13 +838,14 @@ ${spacer}`.trim();
       const isEven   = i % 2 === 0;
 
       const textCol = `
-        <div class="column feat-alt__text">
-          <div class="feat-alt__text-inner">
-            <span class="feat-alt__eyebrow">${eyebrow}</span>
-            <h2 class="feat-alt__headline">${headline}</h2>
-            <p class="feat-alt__body">${body}</p>
-          </div>
-        </div>`.trim();
+      <div class="column feat-alt__text">
+        <div class="feat-alt__text-inner">
+          <span class="feat-alt__eyebrow">${eyebrow}</span>
+          <h2 class="feat-alt__headline">${headline}</h2>
+          <p class="feat-alt__body">${body}</p>
+          <a href="#" class="feat-alt__cta">Learn more ›</a>
+        </div>
+      </div>`.trim();
 
       const imageCol = `
         <div class="column feat-alt__image">
