@@ -509,6 +509,8 @@
      #videoEditor,
      #splitHalfEditor,
      #splitThirdEditor,
+     #grid2x2Editor-gridTwoByTwo,
+     #rowEditor-featureAlternating,
      [id^="tileEditor-"] {
        margin-left: 30px;
      }
