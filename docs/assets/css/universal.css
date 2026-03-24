@@ -344,7 +344,7 @@
 	align-items: stretch;
 	height: 380px;        /* ← fixed height instead of min-height */
 	min-height: 380px;
-	margin-bottom: 16px;
+	margin-bottom: 30px;
 	border-radius: 12px;
 	overflow: hidden;
 	gap: 0 !important;

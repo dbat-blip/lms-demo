@@ -101,6 +101,14 @@
   };
 
   // =====================================================================
+  // 2x2 GRID CONFIG
+  // =====================================================================
+  const GRID_2X2_CONFIG = {
+    counts:  [2, 4],
+    default: 4,
+  };
+
+  // =====================================================================
   // DUPLICATABLE SECTIONS
   // =====================================================================
   const DUPLICATABLE_IDS = new Set([
@@ -136,6 +144,7 @@
     splitHalf:             "Two equal 50/50 columns. Each side can hold a gadget, video embed, or be left empty.",
     splitThird:            "Two columns at a 66/33 split. Useful for a video or main content with a narrower sidebar gadget.",
     faqAccordion:          "Expandable question and answer accordion. Items are fully editable from the builder.",
+    gridTwoByTwo:          "Four-cell icon grid with title, description, and link. Good for highlighting key programs or resources available to learners.",
   };
 
   // =====================================================================
@@ -267,25 +276,26 @@
   // STATE
   // =====================================================================
   const state = {
-    clientName:     (els.clientName?.value   || "").trim(),
-    primaryColor:   (els.primaryColor?.value || "").trim(),
-    accentColor:    (els.accentColor?.value  || "").trim(),
-    heroHeight:     "40vh",
-    heroHeadline:   (els.heroHeadline?.value || "").trim(),
-    heroSubhead:    (els.heroSubhead?.value  || "").trim(),
-    heroImageUrl:   (els.heroImageUrl?.value || "").trim(),
-    industry:       (els.industry?.value     || "").trim(),
-    faqItems:       DEFAULT_FAQ_ITEMS.map(item => ({ ...item })),
-    flatCorners:    false,
-    iconColor:      "",
-    videoEmbedCode: DEFAULT_VIDEO_EMBED,
-    splitHalf:      { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
-    splitThird:     { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
-    enabled:        Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled])),
-    order:          blocks.map((b) => b.id),
-    tileCounts:     Object.fromEntries(Object.entries(TILE_CONFIG).map(([id, cfg]) => [id, cfg.default])),
-    rowCounts:      Object.fromEntries(Object.entries(ROW_CONFIG).map(([id, cfg]) => [id, cfg.default])),
-    duplicates:     {},
+    clientName:        (els.clientName?.value   || "").trim(),
+    primaryColor:      (els.primaryColor?.value || "").trim(),
+    accentColor:       (els.accentColor?.value  || "").trim(),
+    heroHeight:        "40vh",
+    heroHeadline:      (els.heroHeadline?.value || "").trim(),
+    heroSubhead:       (els.heroSubhead?.value  || "").trim(),
+    heroImageUrl:      (els.heroImageUrl?.value || "").trim(),
+    industry:          (els.industry?.value     || "").trim(),
+    faqItems:          DEFAULT_FAQ_ITEMS.map(item => ({ ...item })),
+    flatCorners:       false,
+    iconColor:         "",
+    videoEmbedCode:    DEFAULT_VIDEO_EMBED,
+    splitHalf:         { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
+    splitThird:        { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED },
+    enabled:           Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled])),
+    order:             blocks.map((b) => b.id),
+    tileCounts:        Object.fromEntries(Object.entries(TILE_CONFIG).map(([id, cfg]) => [id, cfg.default])),
+    rowCounts:         Object.fromEntries(Object.entries(ROW_CONFIG).map(([id, cfg]) => [id, cfg.default])),
+    gridTwoByTwoCount: GRID_2X2_CONFIG.default,
+    duplicates:        {},
   };
 
   window.state = state;
@@ -391,11 +401,9 @@
     const defaultPrimary = "#37352a";
     const defaultAccent  = "#ff7a52";
 
-    // Two heroes
     const enabledHeroes = heroIds.filter((id) => state.enabled[id]);
     if (enabledHeroes.length > 1) next.add("twoHeroes");
 
-    // Placeholder tiles
     Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
       const count        = state.tileCounts[id] ?? cfg.default;
       const industryData = getIndustryData();
@@ -404,7 +412,6 @@
       if (state.enabled[id] && count > dataCount) next.add("placeholderTiles");
     });
 
-    // Default colors — only warn if at least one section is enabled
     const anySectionEnabled = state.order.some((id) => state.enabled[id]);
     if (
       anySectionEnabled &&
@@ -617,6 +624,92 @@
   }
 
   // =====================================================================
+  // 2x2 GRID HTML
+  // =====================================================================
+  function buildGridTwoByTwoHtml(instanceId) {
+    const industryData = getIndustryData();
+    const heading      = resolveToken("gridTwoByTwo.heading",    industryData) || "What's Here for You";
+    const subheading   = resolveToken("gridTwoByTwo.subheading", industryData) || "";
+    const cells        = resolveToken("gridTwoByTwo.cells",      industryData);
+    const count        = state.gridTwoByTwoCount ?? GRID_2X2_CONFIG.default;
+    const spacer       = `<div class="row" data-section-id="spacer-40">
+  <div class="column"><div class="spacer height-40"></div></div>
+</div>`;
+
+    if (!Array.isArray(cells)) return "";
+
+    const activeCells = cells.slice(0, count);
+
+    const cellsHtml = activeCells.map((cell) => {
+      const svg = window.ICONS?.[cell.iconKey] || "";
+      return `
+<div class="g2x2__cell">
+  <div class="g2x2__icon">${svg}</div>
+  <h3 class="g2x2__title">${cell.title || ""}</h3>
+  <p class="g2x2__body">${cell.body || ""}</p>
+  <a href="${cell.href || "#"}" class="g2x2__cta">${cell.ctaText || "Learn more"} ›</a>
+</div>`.trim();
+    }).join("\n");
+
+    return `
+<div class="row" data-section-id="grid-2x2-head">
+  <div class="column sectionheadline">
+    <h2>${heading}</h2>
+    <p>${subheading}</p>
+  </div>
+</div>
+<div class="row" data-section-id="grid-2x2-grid">
+  <div class="column">
+    <div class="g2x2__grid g2x2__grid--${count === 2 ? "2" : "4"}">
+      ${cellsHtml}
+    </div>
+  </div>
+</div>
+${spacer}`.trim();
+  }
+
+  // =====================================================================
+  // 2x2 GRID EDITOR
+  // =====================================================================
+  function renderGridTwoByTwoEditor(instanceId) {
+    const container = document.getElementById(`grid2x2Editor-${instanceId}`);
+    if (!container) return;
+
+    container.style.display = state.enabled[instanceId] ? "block" : "none";
+    container.innerHTML     = "";
+
+    const count = state.gridTwoByTwoCount ?? GRID_2X2_CONFIG.default;
+
+    const wrap = document.createElement("div");
+    wrap.className = "icon-editor";
+    wrap.innerHTML = `
+      <div class="field">
+        <label>Number of cells</label>
+        <div class="tile-controls">
+          ${GRID_2X2_CONFIG.counts.map((n) => `
+            <button
+              type="button"
+              class="btn btn-small g2x2-btn"
+              data-count="${n}"
+              ${count === n ? "disabled" : ""}
+            >${n} cells</button>
+          `).join("")}
+        </div>
+        <div class="hint">Toggle between a 2-cell or 4-cell layout.</div>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    wrap.querySelectorAll(".g2x2-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.gridTwoByTwoCount = parseInt(btn.dataset.count);
+        renderGridTwoByTwoEditor(instanceId);
+        renderAll();
+      });
+    });
+  }
+
+  // =====================================================================
   // TILE EDITOR
   // =====================================================================
   function renderTileEditor(instanceId) {
@@ -735,8 +828,8 @@
   // FEATURE ALTERNATING HTML
   // =====================================================================
   function buildAlternatingRowsHtml(instanceId) {
-    const bId        = baseId(instanceId);
-    const cfg        = ROW_CONFIG[bId];
+    const bId = baseId(instanceId);
+    const cfg = ROW_CONFIG[bId];
     if (!cfg) return "";
 
     const industryData = getIndustryData();
@@ -979,6 +1072,9 @@ ${spacer}`.trim();
       } else if (ROW_CONFIG[bId]) {
         const count = state.rowCounts[bId] ?? ROW_CONFIG[bId].default;
         meta = `<span class="outline-meta">${count} row${count !== 1 ? "s" : ""}</span>`;
+      } else if (bId === "gridTwoByTwo") {
+        const count = state.gridTwoByTwoCount ?? GRID_2X2_CONFIG.default;
+        meta = `<span class="outline-meta">${count} cells</span>`;
       }
 
       const label = block._isDuplicate
@@ -1182,6 +1278,7 @@ ${spacer}`.trim();
     renderSplitEditor("splitThird", "splitThirdEditor-splitThird");
     Object.keys(TILE_CONFIG).forEach((id) => renderTileEditor(id));
     Object.keys(ROW_CONFIG).forEach((id) => renderRowEditor(id));
+    if (state.enabled["gridTwoByTwo"]) renderGridTwoByTwoEditor("gridTwoByTwo");
     renderAll();
   }
 
@@ -1238,7 +1335,6 @@ ${spacer}`.trim();
       row.className = "block-row";
       if (!industrySelected) row.classList.add("block-row--disabled");
 
-      // Left: checkbox + label + tooltip
       const left     = document.createElement("div");
       left.className = "block-row__left";
 
@@ -1269,7 +1365,6 @@ ${spacer}`.trim();
       left.appendChild(checkbox);
       left.appendChild(labelWrap);
 
-      // Right: Up/Down + Duplicate + Remove
       const right     = document.createElement("div");
       right.className = "block-row__right";
 
@@ -1311,6 +1406,7 @@ ${spacer}`.trim();
         if (bId === "videoAndSnapshot")                         renderVideoEditor();
         if (TILE_CONFIG[bId])                                   renderTileEditor(instanceId);
         if (ROW_CONFIG[bId])                                    renderRowEditor(instanceId);
+        if (bId === "gridTwoByTwo")                             renderGridTwoByTwoEditor(instanceId);
 
         syncSelectAll();
         renderAll();
@@ -1373,6 +1469,13 @@ ${spacer}`.trim();
         mount.id    = `rowEditor-${instanceId}`;
         els.blockList.appendChild(mount);
         renderRowEditor(instanceId);
+      }
+
+      if (bId === "gridTwoByTwo") {
+        const mount = document.createElement("div");
+        mount.id    = `grid2x2Editor-${instanceId}`;
+        els.blockList.appendChild(mount);
+        renderGridTwoByTwoEditor(instanceId);
       }
     });
 
@@ -1749,13 +1852,9 @@ ${spacer}`.trim();
         const block = blocks.find((b) => b.id === instanceId);
         if (!block) return "";
 
-        if (bId === "featureAlternating") {
-          return buildFeatureAlternatingHtml(instanceId);
-        }
-
-        if (TILE_CONFIG[bId]) {
-          return buildTileSectionHtml(bId, block, instanceId);
-        }
+        if (bId === "featureAlternating") return buildFeatureAlternatingHtml(instanceId);
+        if (bId === "gridTwoByTwo")       return buildGridTwoByTwoHtml(instanceId);
+        if (TILE_CONFIG[bId])             return buildTileSectionHtml(bId, block, instanceId);
 
         const html = typeof block.getHtml === "function"
           ? block.getHtml(instanceId)
@@ -1879,22 +1978,22 @@ ${spacer}`.trim();
     if (els.heroHeadline) els.heroHeadline.value  = "Training that holds up in an audit";
     if (els.heroSubhead)  els.heroSubhead.value   = "This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.";
 
-    state.clientName     = "";
-    state.primaryColor   = "#37352a";
-    state.accentColor    = "#ff7a52";
-    state.heroHeadline   = "Training that holds up in an audit";
-    state.heroSubhead    = "This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.";
-    state.heroImageUrl   = "";
-    state.flatCorners    = false;
-    state.iconColor      = "";
-    state.industry       = "";
-    state.heroHeight     = "40vh";
-    state.videoEmbedCode = DEFAULT_VIDEO_EMBED;
-    state.splitHalf      = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
-    state.splitThird     = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
-    state.faqItems       = DEFAULT_FAQ_ITEMS.map(item => ({ ...item }));
+    state.clientName        = "";
+    state.primaryColor      = "#37352a";
+    state.accentColor       = "#ff7a52";
+    state.heroHeadline      = "Training that holds up in an audit";
+    state.heroSubhead       = "This demo shows how the LMS supports compliance, safety, and onboarding with repeatable programs, clear assignments, and audit-ready reporting.";
+    state.heroImageUrl      = "";
+    state.flatCorners       = false;
+    state.iconColor         = "";
+    state.industry          = "";
+    state.heroHeight        = "40vh";
+    state.videoEmbedCode    = DEFAULT_VIDEO_EMBED;
+    state.splitHalf         = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
+    state.splitThird        = { left: "", right: "", leftEmbed: DEFAULT_VIDEO_EMBED, rightEmbed: DEFAULT_VIDEO_EMBED };
+    state.faqItems          = DEFAULT_FAQ_ITEMS.map(item => ({ ...item }));
+    state.gridTwoByTwoCount = GRID_2X2_CONFIG.default;
 
-    // Remove all duplicates
     const dupIds = state.order.filter((id) => id.includes("__"));
     dupIds.forEach((id) => {
       const idx = blocks.findIndex((b) => b.id === id);
@@ -1904,12 +2003,10 @@ ${spacer}`.trim();
     state.enabled    = Object.fromEntries(blocks.map((b) => [b.id, !!b.defaultEnabled]));
     state.order      = blocks.map((b) => b.id);
 
-    // Reset tile counts
     Object.entries(TILE_CONFIG).forEach(([id, cfg]) => {
       state.tileCounts[id] = cfg.default;
     });
 
-    // Reset row counts
     Object.entries(ROW_CONFIG).forEach(([id, cfg]) => {
       state.rowCounts[id] = cfg.default;
     });
@@ -1927,6 +2024,7 @@ ${spacer}`.trim();
     renderSplitEditor("splitThird", "splitThirdEditor-splitThird");
     Object.keys(TILE_CONFIG).forEach((id) => renderTileEditor(id));
     Object.keys(ROW_CONFIG).forEach((id) => renderRowEditor(id));
+    renderGridTwoByTwoEditor("gridTwoByTwo");
     renderAll();
   }
 
