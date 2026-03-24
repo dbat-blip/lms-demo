@@ -628,8 +628,6 @@
   // =====================================================================
   function buildGridTwoByTwoHtml(instanceId) {
     const industryData = getIndustryData();
-    const heading      = resolveToken("gridTwoByTwo.heading",    industryData) || "What's Here for You";
-    const subheading   = resolveToken("gridTwoByTwo.subheading", industryData) || "";
     const cells        = resolveToken("gridTwoByTwo.cells",      industryData);
     const count        = state.gridTwoByTwoCount ?? GRID_2X2_CONFIG.default;
     const spacer       = `<div class="row" data-section-id="spacer-40">
@@ -652,12 +650,6 @@
     }).join("\n");
 
     return `
-<div class="row" data-section-id="grid-2x2-head">
-  <div class="column sectionheadline">
-    <h2>${heading}</h2>
-    <p>${subheading}</p>
-  </div>
-</div>
 <div class="row" data-section-id="grid-2x2-grid">
   <div class="column">
     <div class="g2x2__grid g2x2__grid--${count === 2 ? "2" : "4"}">
