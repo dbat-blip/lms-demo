@@ -946,9 +946,7 @@
 	padding: 20px 30px;
     border-radius: 6px;
   }
-  #grid2x2Editor-gridTwoByTwo > div > div > div.tile-controls{
-	gap:30px
-  }
+
   
   /* Responsive */
   @media (max-width: 768px) {

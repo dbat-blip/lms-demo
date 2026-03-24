@@ -898,6 +898,9 @@
     font-style: italic;
     padding: 4px 0;
   }
+  #grid2x2Editor-gridTwoByTwo > div > div > div.tile-controls{
+    gap:30px
+    }
   
   /* ============================================================
      COPY WRAPPER — anchors warning panel position
