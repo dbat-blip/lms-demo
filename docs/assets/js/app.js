@@ -1739,7 +1739,7 @@ ${spacer}`.trim();
     </div>
     <div class="empty-state__title">No blocks selected yet</div>
     <ol class="empty-state__steps">
-      <li data-step="1">Enter the client name (optional), and select their industry (required)</li>
+      <li data-step="1">Enter org name (optional), and select industry (required)</li>
       <li data-step="2">Set brand colors</li>
       <li data-step="3">Enter hero image URL if applicable. Imgbox is a great host</li>
       <li data-step="4">Check the blocks you want to include. Some have additional customization options</li>
