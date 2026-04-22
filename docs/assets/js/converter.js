@@ -39,11 +39,10 @@
     const STRUCTURAL_STYLE_EXEMPT_TAGS = new Set([
       "a","img","button","span","p",
       "h1","h2","h3","h4","h5","h6",
-      "li","td","th","input","label",
+      "li","td","th","input","label","i","b","strong","em","ul","ol",
     ]);
   
     // ─── Layout class patterns to strip from <style> blocks ─────
-    // Only selectors that target the old grid system are removed.
     const STRUCTURAL_SELECTOR_PATTERN =
       /\.(row|col|column|clearfix|full|s\d+|l\d+|m\d+|xl\d+|s5ths|m5ths|l5ths|xl5ths|blockgrid|third|fourth|half|two-third|flex(?!\s*\{)(?!-)|grid(?!\s*\{)(?!-))\b/;
   
@@ -54,21 +53,43 @@
       const body   = doc.body;
   
       const styleBlocks = collectStyleBlocks(doc);
-  
       cleanLegacyClasses(body);
   
       const sections    = extractSections(body);
       const outputParts = [];
   
       outputParts.push(buildHeroCSS());
-  
       if (styleBlocks) outputParts.push(styleBlocks);
   
-      sections.forEach((section) => {
-        outputParts.push(convertSection(section));
-      });
+      // Convert sections, then collapse runs of consecutive spacers
+      const converted = sections.map(convertSection).filter(Boolean);
+      const collapsed = collapseSpacers(converted);
+  
+      collapsed.forEach((part) => outputParts.push(part));
   
       return outputParts.filter(Boolean).join("\n");
+    }
+  
+    // ─── Collapse consecutive spacer rows into one ──────────────
+    // Prevents a run of empty legacy rows producing a stack of
+    // height-40 divs in the output.
+    function collapseSpacers(parts) {
+      const SPACER = buildSpacerRow();
+      const result = [];
+      let lastWasSpacer = false;
+  
+      parts.forEach((part) => {
+        const isSpacer = part.trim() === SPACER.trim();
+        if (isSpacer) {
+          if (!lastWasSpacer) result.push(part);
+          lastWasSpacer = true;
+        } else {
+          result.push(part);
+          lastWasSpacer = false;
+        }
+      });
+  
+      return result;
     }
   
     // ─── Collect and filter <style> blocks ──────────────────────
@@ -78,30 +99,24 @@
   
       const filtered = styleEls.map((styleEl) => {
         let css = styleEl.textContent;
-  
-        // ── Normalise non-standard comment delimiters ────────────
-        // Some legacy pages use /** ... **/ instead of /* ... */
-        // Convert them so the parser handles them correctly.
         css = css.replace(/\/\*\*/g, "/*").replace(/\*\*\//g, "*/");
   
-        const lines      = css.split("\n");
-        const kept       = [];
-        let skipBlock    = false;
-        let braceDepth   = 0;
-        let inComment    = false;
+        const lines    = css.split("\n");
+        const kept     = [];
+        let skipBlock  = false;
+        let braceDepth = 0;
+        let inComment  = false;
   
         lines.forEach((line) => {
           const trimmed = line.trim();
   
-          // ── Track block comments ─────────────────────────────
           if (!inComment && trimmed.includes("/*")) inComment = true;
           if (inComment) {
-            kept.push(line); // always keep comment lines
+            kept.push(line);
             if (trimmed.includes("*/")) inComment = false;
             return;
           }
   
-          // ── Detect start of a structural rule block ──────────
           if (!skipBlock && STRUCTURAL_SELECTOR_PATTERN.test(trimmed)) {
             skipBlock  = true;
             braceDepth = 0;
@@ -116,7 +131,7 @@
               skipBlock  = false;
               braceDepth = 0;
             }
-            return; // do not keep structural rule lines
+            return;
           }
   
           kept.push(line);
@@ -135,20 +150,15 @@
       if (STRUCTURAL_STYLE_EXEMPT_TAGS.has(el.tagName.toLowerCase())) return;
   
       const declarations = el.getAttribute("style")
-        .split(";")
-        .map(s => s.trim())
-        .filter(Boolean);
+        .split(";").map(s => s.trim()).filter(Boolean);
   
       const kept = declarations.filter((decl) => {
         const prop = decl.split(":")[0].trim().toLowerCase();
         return !STRUCTURAL_PROPS.has(prop);
       });
   
-      if (kept.length === 0) {
-        el.removeAttribute("style");
-      } else {
-        el.setAttribute("style", kept.join("; ") + ";");
-      }
+      if (kept.length === 0) el.removeAttribute("style");
+      else el.setAttribute("style", kept.join("; ") + ";");
     }
   
     // ─── Hero CSS ────────────────────────────────────────────────
@@ -172,14 +182,23 @@
   </style>`;
     }
   
-    // ─── Strip legacy layout classes from all elements ──────────
+    // ─── Strip legacy layout classes ────────────────────────────
     const LEGACY_CLASSES = [
-      "clearfix","full",
+      "clearfix","full","center",
       "s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12",
       "l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12",
       "m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12",
       "blockgrid","third","fourth","half","two-third",
       "boxhover","featured","card_box_wrap","col",
+      // Old page-builder typography helpers — layout-only, not visual
+      "size-80","size-48","size-21",
+      "is-title1-48","is-title-lite","is-lite",
+      // Old button classes — visual styles retained via inline/css,
+      // but the class names themselves are legacy
+      "is-btn","is-btn-ghost1","is-btn-ghost2",
+      "is-upper","is-rounded-30","is-btn-small",
+      // Old layout display helpers
+      "display",
     ];
   
     function cleanLegacyClasses(root) {
@@ -226,45 +245,53 @@
       const row       = section.node;
       const sectionId = row.dataset.sectionId || detectSectionType(row);
   
-      if (isSpacerRow(row))                                    return buildSpacerRow();
-      if (row.querySelector(":scope > hr, :scope > .spacer"))  return buildSpacerRow();
-      if (sectionId === "hero"         || isHeroRow(row))      return convertHeroRow(row);
-      if (sectionId === "faq-accordion"|| isFaqRow(row))       return convertFaqSection(row);
-      if (sectionId === "quick-links"  || isQuickLinksRow(row)) return convertQuickLinksSection(row);
-      if (hasTiles(row))                                       return convertTileSection(row);
+      if (isSpacerRow(row))                                     return buildSpacerRow();
+      if (row.querySelector(":scope > hr"))                     return buildSpacerRow();
+      if (sectionId === "hero"          || isHeroRow(row))      return convertHeroRow(row);
+      if (sectionId === "faq-accordion" || isFaqRow(row))       return convertFaqSection(row);
+      if (sectionId === "quick-links"   || isQuickLinksRow(row)) return convertQuickLinksSection(row);
+      if (hasTiles(row))                                        return convertTileSection(row);
   
       return convertGenericRow(row);
     }
   
-    // ─── Detection helpers ──────────────────────────────────────
+    // ─── Spacer detection ────────────────────────────────────────
+    // A row is ONLY a spacer if it has no meaningful content at all.
+    // A row that contains a spacer div AND other real content is NOT
+    // a spacer row — the spacer div inside it will be preserved as-is.
     function isSpacerRow(row) {
-      if (row.textContent.trim() === "") return true;
-      if (row.querySelector(".spacer"))  return true;
-      return false;
+      // Truly empty rows (nothing inside at all)
+      if (row.innerHTML.trim() === "") return true;
+  
+      // Rows whose ONLY content is whitespace and/or .spacer divs
+      // Clone and remove all .spacer elements, then check if anything remains
+      const clone = row.cloneNode(true);
+      clone.querySelectorAll(".spacer").forEach((el) => el.remove());
+  
+      const remainingText    = clone.textContent.trim();
+      const remainingElements = clone.querySelectorAll(
+        "img, a, h1, h2, h3, h4, h5, h6, p, ul, ol, li, span, i, b, strong, em, input, button, div"
+      );
+  
+      // It is a spacer row only if removing spacers leaves nothing
+      return remainingText === "" && remainingElements.length === 0;
     }
   
-    // Hero detection — covers three legacy hero patterns:
-    //   A. A direct <img> inside the row that is clearly a banner
-    //      (not a small logo — checked via alt text and class names)
-    //   B. CSS background-image heroes: .halfheroleft/.halfheroright,
-    //      .parallax, .fulloverlaybg, .transpheadbar etc.
-    //   C. Already-converted hero structure
+    // ─── Hero detection ─────────────────────────────────────────
     function isHeroRow(row) {
-      const html      = row.innerHTML.toLowerCase();
-      const classStr  = (row.getAttribute("class") || "") + " " + html;
+      const html     = row.innerHTML.toLowerCase();
+      const classStr = (row.getAttribute("class") || "") + " " + html;
   
-      // B — CSS background heroes (no <img> required)
       if (
         row.querySelector(".halfheroleft, .halfheroright, .parallax, .fulloverlaybg, .transpheadbar, .splitranspright, .splitransprighthero") ||
         /halfheroleft|halfheroright|parallax|fulloverlaybg|transpheadbar|splitranspright/.test(classStr)
       ) return true;
   
-      // A — img-based banner (img that is NOT a small logo/icon)
       const img = row.querySelector("img");
       if (img) {
-        const alt     = (img.getAttribute("alt") || "").toLowerCase();
-        const src     = (img.getAttribute("src") || "").toLowerCase();
-        const isLogo  = /logo|icon/.test(alt) || /logo|icon/.test(src);
+        const alt      = (img.getAttribute("alt") || "").toLowerCase();
+        const src      = (img.getAttribute("src") || "").toLowerCase();
+        const isLogo   = /logo|icon/.test(alt) || /logo|icon/.test(src);
         const isBanner = /hero|banner|cover|bg|background/.test(classStr) ||
                          row.querySelector(".hero-section, .fulloverlaybg, .headerbar") !== null;
         if (!isLogo && isBanner) return true;
@@ -280,8 +307,20 @@
       );
     }
   
+    // ─── Quick Links detection ───────────────────────────────────
+    // Tightened: only trigger on an explicit data-section-id or a
+    // heading/label that literally contains "quick link/links".
+    // Generic content columns with anchors must NOT be treated as
+    // quick links just because they happen to contain buttons.
     function isQuickLinksRow(row) {
-      return /quick.?link/i.test(row.dataset.sectionId || "");
+      const sectionId = row.dataset.sectionId || "";
+      if (/quick.?link/i.test(sectionId)) return true;
+  
+      // Check heading text inside the row
+      const heading = row.querySelector("h1, h2, h3");
+      if (heading && /quick.?link/i.test(heading.textContent)) return true;
+  
+      return false;
     }
   
     function hasTiles(row) {
@@ -291,12 +330,12 @@
     function detectSectionType(row) {
       const html = row.innerHTML.toLowerCase();
       if (/halfheroleft|halfheroright|parallax|fulloverlaybg|transpheadbar/.test(html)) return "hero";
-      if (/faq/.test(html))       return "faq-accordion";
+      if (/faq/.test(html))        return "faq-accordion";
       if (/quick.?link/.test(html)) return "quick-links";
       return "generic";
     }
   
-    // ─── Spacer ─────────────────────────────────────────────────
+    // ─── Spacer row builder ──────────────────────────────────────
     function buildSpacerRow() {
       return `<div class="row">
     <div class="column">
@@ -305,30 +344,20 @@
   </div>`;
     }
   
-    // ─── Hero conversion ─────────────────────────────────────────
-    // Handles both <img> heroes and CSS background-image heroes.
-    // For CSS background heroes the image URL is extracted from the
-    // class's background-image rule in the retained <style> block.
+    // ─── Hero ────────────────────────────────────────────────────
     function convertHeroRow(row) {
-  
-      // ── Case A: halfheroleft / halfheroright split layout ─────
       const leftEl  = row.querySelector(".halfheroleft");
       const rightEl = row.querySelector(".halfheroright, .gradbgright");
   
-      if (leftEl || rightEl) {
-        return convertSplitHero(leftEl, rightEl, row);
-      }
+      if (leftEl || rightEl) return convertSplitHero(leftEl, rightEl, row);
   
-      // ── Case B: img-based hero ────────────────────────────────
-      const img     = row.querySelector("img");
-      const imgSrc  = img ? img.getAttribute("src") : "";
-      const imgAlt  = img ? (img.getAttribute("alt") || "") : "";
+      const img      = row.querySelector("img");
+      const imgSrc   = img ? img.getAttribute("src") : "";
+      const imgAlt   = img ? (img.getAttribute("alt") || "") : "";
       const imgStyle = img
         ? (img.getAttribute("style") || "width:100%; height:auto; display:block;")
         : "width:100%; height:auto; display:block;";
   
-      // Find the library / CTA button — look for any anchor, prefer
-      // ones with known button classes or prominent href values
       const btn     = findHeroButton(row);
       const btnHref = btn ? btn.getAttribute("href") : "#";
       const btnText = btn ? btn.textContent.trim() : "LIBRARY";
@@ -343,21 +372,11 @@
   </div>`;
     }
   
-    // ── Split hero (.halfheroleft + .halfheroright) ──────────────
-    // Converts to two equal columns, preserving the background-image
-    // class on the left div and all content in the right div.
     function convertSplitHero(leftEl, rightEl, row) {
-      // Left column — keep the class so the CSS background still works
-      const leftClass = leftEl ? (leftEl.getAttribute("class") || "halfheroleft") : "halfheroleft";
-      const leftHtml  = leftEl ? leftEl.innerHTML.trim() : "";
-  
-      // Right column — extract content, keep classes for CSS
+      const leftClass  = leftEl ? (leftEl.getAttribute("class") || "halfheroleft") : "halfheroleft";
+      const leftHtml   = leftEl ? leftEl.innerHTML.trim() : "";
       const rightClass = rightEl ? (rightEl.getAttribute("class") || "") : "";
       const rightContent = rightEl ? rightEl.innerHTML.trim() : "";
-  
-      // Find the CTA button anywhere in the right column
-      const btn     = rightEl ? findHeroButton(rightEl) : null;
-      const btnHref = btn ? btn.getAttribute("href") : "#";
   
       return `<div class="row">
     <div class="column">
@@ -371,8 +390,6 @@
   </div>`;
     }
   
-    // ── Find the most likely CTA button in a hero ────────────────
-    // Priority: .btn-right > .hero-library-btn > any <a> with href
     function findHeroButton(container) {
       return (
         container.querySelector("a.btn-right") ||
@@ -489,20 +506,17 @@
   
     // ─── Tile / Card Grid ────────────────────────────────────────
     function convertTileSection(row) {
-      // Collect tile roots — the direct <a> wrappers around card_box divs
       const tileEls = Array.from(row.querySelectorAll(".card_box, .hover-tile"));
   
-      // Walk up to find the actual <a> anchor for each tile
       const tileAnchors = tileEls.map((el) => {
         let node = el;
         while (node && node !== row) {
           if (node.tagName === "A") return node;
           node = node.parentElement;
         }
-        return el; // fallback — no anchor found
+        return el;
       });
   
-      // De-duplicate
       const seen   = new Set();
       const unique = tileAnchors.filter((el) => {
         if (seen.has(el)) return false;
@@ -557,17 +571,13 @@
     }
   
     function convertTileElement(el) {
-      // el is either the <a> itself or a .card_box div
       const isAnchor = el.tagName === "A";
       const href     = isAnchor
         ? el.getAttribute("href")
         : (el.querySelector("a") ? el.querySelector("a").getAttribute("href") : "#");
   
-      // Inner content — if el is the <a>, use its children directly
-      // If el is a card_box, use its own outerHTML as the inner content
       let innerHtml = isAnchor ? el.innerHTML : el.outerHTML;
   
-      // Clean legacy classes inside but preserve all inline styles
       const tmp = document.createElement("div");
       tmp.innerHTML = innerHtml;
       ["card_box", "boxhover", "featured", "card_box_wrap"].forEach((cls) => {
