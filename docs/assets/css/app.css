@@ -938,3 +938,54 @@
       height: 55vh;
     }
   }
+  /* ============================================================
+   MODE TABS (header)
+============================================================ */
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  margin-right: 12px;
+}
+
+.mode-tab {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.18);
+  background: transparent;
+  color: rgba(255,255,255,.6);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.mode-tab:hover {
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.9);
+}
+
+.mode-tab--active {
+  background: rgba(255,255,255,.14);
+  color: #ffffff;
+  border-color: rgba(255,255,255,.35);
+}
+
+/* ============================================================
+   CONVERTER LAYOUT
+============================================================ */
+.converter-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.converter-textarea {
+  height: 60vh;
+  min-height: 320px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .converter-grid {
+    grid-template-columns: 1fr;
+  }
+}

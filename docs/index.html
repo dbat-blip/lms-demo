@@ -30,22 +30,39 @@
         <div class="app-title">ClearLearn Custom Page Generator</div>
       </div>
     </div>
-
     <div class="app-header__right">
-        <button id="btnCopy" class="btn btn-primary" type="button">Copy HTML</button>
+      <!-- Mode tabs -->
+      <div class="mode-tabs" role="tablist">
+        <button
+          id="tabGenerator"
+          class="mode-tab mode-tab--active"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="modeGenerator"
+        >Page Generator</button>
+        <button
+          id="tabConverter"
+          class="mode-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="modeConverter"
+        >Legacy Converter</button>
+      </div>
+      <!-- Copy button — shown only in generator mode -->
+      <button id="btnCopy" class="btn btn-primary" type="button">Copy HTML</button>
     </div>
   </header>
 
   <!-- ============================================================
-       APP GRID
+       MODE: GENERATOR
   ============================================================ -->
-  <main class="app app-grid">
+  <main id="modeGenerator" class="app app-grid" role="tabpanel" aria-labelledby="tabGenerator">
 
-    <!-- ── Left: Selector ───────────────────────────────────────── -->
+    <!-- ── Left: Selector ─────────────────────────────────────── -->
     <section class="panel panel--selector">
-
       <h2>Org + Branding</h2>
-
       <div class="grid-2">
         <div class="field">
           <label for="clientName">Org name</label>
@@ -84,23 +101,16 @@
           </label>
         </div>
       </div>
-
       <hr />
-
       <h2>Hero Image</h2>
       <div class="field">
         <label for="heroImageUrl">Image URL (optional)</label>
         <input id="heroImageUrl" type="text" placeholder="https://..." />
         <div class="hint">Used by all hero sections. Imgbox is a great free host.</div>
       </div>
-      <!-- Hero image live preview -->
       <div id="heroImagePreview"></div>
-
       <hr />
-
       <h2>Block Selection</h2>
-
-      <!-- Select All + Presets -->
       <div class="block-row" id="selectAllRow">
         <div class="block-row__left">
           <input type="checkbox" id="selectAll" />
@@ -123,37 +133,29 @@
           </div>
         </div>
       </div>
-
-      <!-- Block list — rendered by app.js -->
       <div id="blockList" class="block-list"></div>
-
       <div class="panel-actions">
         <button id="btnPrint" class="btn btn-small" type="button">Print Summary</button>
         <button id="btnReset" class="btn" type="button">Reset</button>
       </div>
-
     </section>
 
-    <!-- ── Right: Preview ───────────────────────────────────────── -->
+    <!-- ── Right: Preview ─────────────────────────────────────── -->
     <section class="panel panel--preview">
-
-      <!-- Outline panel — collapsed by default -->
       <div class="outline-panel">
         <div class="outline-panel__header">
           <button id="outlineToggle" type="button">Page Outline ↓</button>
         </div>
         <div id="outlineBody" class="outline-body" style="display:none;"></div>
       </div>
-
       <iframe
         id="previewFrame"
         class="preview-frame"
         title="LMS Page Preview"
       ></iframe>
-
     </section>
 
-    <!-- ── Bottom: HTML Output ──────────────────────────────────── -->
+    <!-- ── Bottom: HTML Output ────────────────────────────────── -->
     <section class="panel panel--html">
       <h2>Generated HTML</h2>
       <div class="hint">Paste this into the LMS HTML editor.</div>
@@ -162,9 +164,133 @@
 
   </main>
 
+  <!-- ============================================================
+       MODE: LEGACY CONVERTER
+  ============================================================ -->
+  <main
+    id="modeConverter"
+    class="app app-grid converter-grid"
+    role="tabpanel"
+    aria-labelledby="tabConverter"
+    style="display:none;"
+  >
+
+    <!-- ── Left: Input ────────────────────────────────────────── -->
+    <section class="panel panel--selector converter-input-panel">
+      <h2>Legacy Page Input</h2>
+      <div class="hint" style="margin-bottom:12px;">Paste the old-format HTML below, then click Convert.</div>
+      <textarea
+        id="legacyInput"
+        class="output converter-textarea"
+        spellcheck="false"
+        placeholder="Paste legacy page HTML here…"
+      ></textarea>
+      <div class="panel-actions" style="margin-top:14px; gap:10px;">
+        <button id="btnConvert" class="btn btn-primary" type="button">⟳ Convert to v5</button>
+        <button id="btnClearConverter" class="btn" type="button">Clear</button>
+      </div>
+      <div id="converterStatus" class="hint" style="margin-top:10px; min-height:18px;"></div>
+    </section>
+
+    <!-- ── Right: Output ──────────────────────────────────────── -->
+    <section class="panel panel--preview converter-output-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="margin:0;">v5 Output</h2>
+        <button id="btnCopyConverted" class="btn btn-primary" type="button">Copy HTML</button>
+      </div>
+      <div class="hint" style="margin-bottom:12px;">Paste this into the LMS HTML editor.</div>
+      <textarea
+        id="convertedOutput"
+        class="output converter-textarea"
+        spellcheck="false"
+        readonly
+        placeholder="Converted v5 HTML will appear here…"
+      ></textarea>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       SCRIPTS
+  ============================================================ -->
   <script src="./assets/js/sections.js"></script>
   <script src="./assets/js/data.js"></script>
   <script src="./assets/js/print.js"></script>
   <script src="./assets/js/app.js"></script>
+  <script src="./assets/js/converter.js"></script>
+  <script>
+    /* ── Tab switching ───────────────────────────────────────── */
+    (function () {
+      const tabGen   = document.getElementById("tabGenerator");
+      const tabCon   = document.getElementById("tabConverter");
+      const modeGen  = document.getElementById("modeGenerator");
+      const modeCon  = document.getElementById("modeConverter");
+      const btnCopy  = document.getElementById("btnCopy");
+
+      function activateTab(tab) {
+        const isGenerator = tab === tabGen;
+
+        // Panels
+        modeGen.style.display = isGenerator ? "" : "none";
+        modeCon.style.display = isGenerator ? "none" : "";
+
+        // Tab states
+        tabGen.classList.toggle("mode-tab--active", isGenerator);
+        tabCon.classList.toggle("mode-tab--active", !isGenerator);
+        tabGen.setAttribute("aria-selected", isGenerator);
+        tabCon.setAttribute("aria-selected", !isGenerator);
+
+        // Header copy button only relevant in generator mode
+        btnCopy.style.display = isGenerator ? "" : "none";
+      }
+
+      tabGen.addEventListener("click", function () { activateTab(tabGen); });
+      tabCon.addEventListener("click", function () { activateTab(tabCon); });
+
+      /* ── Converter actions ─────────────────────────────────── */
+      const btnConvert      = document.getElementById("btnConvert");
+      const btnClear        = document.getElementById("btnClearConverter");
+      const btnCopyConv     = document.getElementById("btnCopyConverted");
+      const inputArea       = document.getElementById("legacyInput");
+      const outputArea      = document.getElementById("convertedOutput");
+      const statusEl        = document.getElementById("converterStatus");
+
+      btnConvert.addEventListener("click", function () {
+        const raw = inputArea.value.trim();
+        if (!raw) {
+          statusEl.textContent = "⚠ Nothing to convert — paste legacy HTML first.";
+          return;
+        }
+        if (typeof window.convertLegacyPage !== "function") {
+          statusEl.textContent = "✗ Converter not loaded. Check converter.js.";
+          return;
+        }
+        try {
+          const result = window.convertLegacyPage(raw);
+          outputArea.value = result;
+          statusEl.textContent = "✓ Conversion complete.";
+        } catch (err) {
+          statusEl.textContent = "✗ Error: " + err.message;
+          console.error(err);
+        }
+      });
+
+      btnClear.addEventListener("click", function () {
+        inputArea.value  = "";
+        outputArea.value = "";
+        statusEl.textContent = "";
+      });
+
+      btnCopyConv.addEventListener("click", function () {
+        if (!outputArea.value) return;
+        navigator.clipboard.writeText(outputArea.value).then(function () {
+          const orig = btnCopyConv.textContent;
+          btnCopyConv.textContent = "✓ Copied!";
+          setTimeout(function () { btnCopyConv.textContent = orig; }, 1800);
+        });
+      });
+    })();
+  </script>
+
 </body>
 </html>
