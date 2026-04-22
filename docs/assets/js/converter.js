@@ -1,15 +1,10 @@
 /* =============================================================
    ClearLearn Legacy → v5 Page Converter
-   Applies all v5 layout rules to pasted legacy HTML
-   Retains all inline styles and <style> blocks unless they
-   directly control row/column/flex page structure
    ============================================================= */
 
    (function () {
 
     // ─── Structural CSS properties to strip from inline styles ──
-    // ONLY these are considered "layout-structural" and removed.
-    // Everything else is preserved exactly.
     const STRUCTURAL_PROPS = new Set([
       "display",
       "flex",
@@ -40,47 +35,35 @@
       "clear",
     ]);
   
-    // ─── EXCEPTION: these elements are allowed to keep their
-    //     structural inline styles because they are content-level
-    //     (not row/column wrappers).
-    //     Hero wrapper, tile anchors, image wrappers etc.
-    const STRUCTURAL_STYLE_EXEMPT_SELECTORS = [
-      "a",
-      "img",
-      "button",
-      "span",
-      "p",
+    // ─── Content-level elements — keep ALL their inline styles ──
+    const STRUCTURAL_STYLE_EXEMPT_TAGS = new Set([
+      "a","img","button","span","p",
       "h1","h2","h3","h4","h5","h6",
-      "li",
-      "td","th",
-    ];
+      "li","td","th","input","label",
+    ]);
   
-    // ─── CSS class patterns that indicate layout structure ───────
-    // Only these are stripped from <style> block rules.
-    const STRUCTURAL_CSS_PATTERN = /\.(row|column|clearfix|full|s12|l\d+|blockgrid|third|fourth|half|two-third|flex|grid)[\s,{:>+~[]/;
+    // ─── Layout class patterns to strip from <style> blocks ─────
+    // Only selectors that target the old grid system are removed.
+    const STRUCTURAL_SELECTOR_PATTERN =
+      /\.(row|col|column|clearfix|full|s\d+|l\d+|m\d+|xl\d+|s5ths|m5ths|l5ths|xl5ths|blockgrid|third|fourth|half|two-third|flex(?!\s*\{)(?!-)|grid(?!\s*\{)(?!-))\b/;
   
     // ─── Entry point ────────────────────────────────────────────
     function convertLegacyPage(rawHtml) {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(rawHtml, "text/html");
-      const body = doc.body;
+      const doc    = parser.parseFromString(rawHtml, "text/html");
+      const body   = doc.body;
   
-      // Collect and filter all <style> blocks from the source
       const styleBlocks = collectStyleBlocks(doc);
   
       cleanLegacyClasses(body);
-      const sections = extractSections(body);
+  
+      const sections    = extractSections(body);
       const outputParts = [];
   
-      // 1. Hero CSS — always first
       outputParts.push(buildHeroCSS());
   
-      // 2. Retained <style> blocks (non-structural rules preserved)
-      if (styleBlocks) {
-        outputParts.push(styleBlocks);
-      }
+      if (styleBlocks) outputParts.push(styleBlocks);
   
-      // 3. Converted sections
       sections.forEach((section) => {
         outputParts.push(convertSection(section));
       });
@@ -88,37 +71,52 @@
       return outputParts.filter(Boolean).join("\n");
     }
   
-    // ─── Collect <style> blocks, strip only structural rules ────
+    // ─── Collect and filter <style> blocks ──────────────────────
     function collectStyleBlocks(doc) {
       const styleEls = Array.from(doc.querySelectorAll("style"));
       if (!styleEls.length) return "";
   
       const filtered = styleEls.map((styleEl) => {
-        const lines = styleEl.textContent.split("\n");
-        const kept = [];
-        let skipBlock = false;
-        let braceDepth = 0;
+        let css = styleEl.textContent;
+  
+        // ── Normalise non-standard comment delimiters ────────────
+        // Some legacy pages use /** ... **/ instead of /* ... */
+        // Convert them so the parser handles them correctly.
+        css = css.replace(/\/\*\*/g, "/*").replace(/\*\*\//g, "*/");
+  
+        const lines      = css.split("\n");
+        const kept       = [];
+        let skipBlock    = false;
+        let braceDepth   = 0;
+        let inComment    = false;
   
         lines.forEach((line) => {
           const trimmed = line.trim();
   
-          // Detect start of a structural rule block
-          if (!skipBlock && STRUCTURAL_CSS_PATTERN.test(trimmed)) {
-            skipBlock = true;
+          // ── Track block comments ─────────────────────────────
+          if (!inComment && trimmed.includes("/*")) inComment = true;
+          if (inComment) {
+            kept.push(line); // always keep comment lines
+            if (trimmed.includes("*/")) inComment = false;
+            return;
+          }
+  
+          // ── Detect start of a structural rule block ──────────
+          if (!skipBlock && STRUCTURAL_SELECTOR_PATTERN.test(trimmed)) {
+            skipBlock  = true;
+            braceDepth = 0;
           }
   
           if (skipBlock) {
-            // Track brace depth to know when the block ends
             for (const ch of trimmed) {
               if (ch === "{") braceDepth++;
               if (ch === "}") braceDepth--;
             }
-            if (braceDepth <= 0) {
-              skipBlock = false;
+            if (braceDepth <= 0 && trimmed.includes("}")) {
+              skipBlock  = false;
               braceDepth = 0;
             }
-            // Do not push this line
-            return;
+            return; // do not keep structural rule lines
           }
   
           kept.push(line);
@@ -131,20 +129,15 @@
       return filtered.filter(Boolean).join("\n");
     }
   
-    // ─── Strip structural inline styles from row/column wrappers ─
-    // Content-level elements (a, img, p, h2 etc.) keep everything.
+    // ─── Strip structural inline styles from wrapper divs only ──
     function stripStructuralInlineStyle(el) {
       if (!el.hasAttribute("style")) return;
+      if (STRUCTURAL_STYLE_EXEMPT_TAGS.has(el.tagName.toLowerCase())) return;
   
-      const tag = el.tagName.toLowerCase();
-  
-      // Exempt content-level elements — keep all their inline styles
-      if (STRUCTURAL_STYLE_EXEMPT_SELECTORS.includes(tag)) return;
-  
-      // For wrapper elements (div, section, article etc.),
-      // remove only structural properties
-      const styleStr = el.getAttribute("style");
-      const declarations = styleStr.split(";").map(s => s.trim()).filter(Boolean);
+      const declarations = el.getAttribute("style")
+        .split(";")
+        .map(s => s.trim())
+        .filter(Boolean);
   
       const kept = declarations.filter((decl) => {
         const prop = decl.split(":")[0].trim().toLowerCase();
@@ -158,7 +151,7 @@
       }
     }
   
-    // ─── Hero CSS block ─────────────────────────────────────────
+    // ─── Hero CSS ────────────────────────────────────────────────
     function buildHeroCSS() {
       return `<style>
   .hero-library-btn{
@@ -179,20 +172,20 @@
   </style>`;
     }
   
-    // ─── Strip legacy layout classes ────────────────────────────
+    // ─── Strip legacy layout classes from all elements ──────────
     const LEGACY_CLASSES = [
-      "clearfix", "full", "s12",
+      "clearfix","full",
+      "s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12",
       "l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12",
-      "blockgrid", "third", "fourth", "half", "two-third",
-      "boxhover", "featured", "card_box_wrap",
+      "m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12",
+      "blockgrid","third","fourth","half","two-third",
+      "boxhover","featured","card_box_wrap","col",
     ];
   
     function cleanLegacyClasses(root) {
       root.querySelectorAll("*").forEach((el) => {
         LEGACY_CLASSES.forEach((cls) => el.classList.remove(cls));
         if (el.classList.length === 0) el.removeAttribute("class");
-  
-        // Strip structural inline styles from wrapper-level elements only
         stripStructuralInlineStyle(el);
       });
     }
@@ -211,7 +204,6 @@
       };
   
       children.forEach((child) => {
-        // Skip <style> elements — already collected separately
         if (child.tagName === "STYLE") return;
         if (child.classList && child.classList.contains("row")) {
           flushBuffer();
@@ -225,21 +217,21 @@
       return sections;
     }
   
-    // ─── Convert a section ──────────────────────────────────────
+    // ─── Route each section ─────────────────────────────────────
     function convertSection(section) {
       if (section.type === "raw") {
         return section.nodes.map((n) => n.outerHTML).join("\n");
       }
   
-      const row = section.node;
+      const row       = section.node;
       const sectionId = row.dataset.sectionId || detectSectionType(row);
   
-      if (isSpacerRow(row))                                   return buildSpacerRow();
-      if (row.querySelector("hr"))                            return buildSpacerRow();
-      if (sectionId === "hero"      || isHeroRow(row))        return convertHeroRow(row);
-      if (sectionId === "faq-accordion" || isFaqRow(row))     return convertFaqSection(row);
-      if (sectionId === "quick-links" || isQuickLinksRow(row)) return convertQuickLinksSection(row);
-      if (hasTiles(row))                                      return convertTileSection(row);
+      if (isSpacerRow(row))                                    return buildSpacerRow();
+      if (row.querySelector(":scope > hr, :scope > .spacer"))  return buildSpacerRow();
+      if (sectionId === "hero"         || isHeroRow(row))      return convertHeroRow(row);
+      if (sectionId === "faq-accordion"|| isFaqRow(row))       return convertFaqSection(row);
+      if (sectionId === "quick-links"  || isQuickLinksRow(row)) return convertQuickLinksSection(row);
+      if (hasTiles(row))                                       return convertTileSection(row);
   
       return convertGenericRow(row);
     }
@@ -247,18 +239,38 @@
     // ─── Detection helpers ──────────────────────────────────────
     function isSpacerRow(row) {
       if (row.textContent.trim() === "") return true;
-      if (row.querySelector(".spacer")) return true;
+      if (row.querySelector(".spacer"))  return true;
       return false;
     }
   
+    // Hero detection — covers three legacy hero patterns:
+    //   A. A direct <img> inside the row that is clearly a banner
+    //      (not a small logo — checked via alt text and class names)
+    //   B. CSS background-image heroes: .halfheroleft/.halfheroright,
+    //      .parallax, .fulloverlaybg, .transpheadbar etc.
+    //   C. Already-converted hero structure
     function isHeroRow(row) {
+      const html      = row.innerHTML.toLowerCase();
+      const classStr  = (row.getAttribute("class") || "") + " " + html;
+  
+      // B — CSS background heroes (no <img> required)
+      if (
+        row.querySelector(".halfheroleft, .halfheroright, .parallax, .fulloverlaybg, .transpheadbar, .splitranspright, .splitransprighthero") ||
+        /halfheroleft|halfheroright|parallax|fulloverlaybg|transpheadbar|splitranspright/.test(classStr)
+      ) return true;
+  
+      // A — img-based banner (img that is NOT a small logo/icon)
       const img = row.querySelector("img");
-      if (!img) return false;
-      const classStr = row.className + " " + row.innerHTML;
-      return (
-        /hero|banner|fulloverlay|coverimg/.test(classStr.toLowerCase()) ||
-        row.querySelector(".hero-section, .fulloverlaybg") !== null
-      );
+      if (img) {
+        const alt     = (img.getAttribute("alt") || "").toLowerCase();
+        const src     = (img.getAttribute("src") || "").toLowerCase();
+        const isLogo  = /logo|icon/.test(alt) || /logo|icon/.test(src);
+        const isBanner = /hero|banner|cover|bg|background/.test(classStr) ||
+                         row.querySelector(".hero-section, .fulloverlaybg, .headerbar") !== null;
+        if (!isLogo && isBanner) return true;
+      }
+  
+      return false;
     }
   
     function isFaqRow(row) {
@@ -269,27 +281,18 @@
     }
   
     function isQuickLinksRow(row) {
-      return (
-        /quick.?link/i.test(row.dataset.sectionId || "") ||
-        (
-          row.querySelectorAll("a[href]").length >= 2 &&
-          row.querySelectorAll(".column").length >= 2 &&
-          row.querySelectorAll("img").length === 0
-        )
-      );
+      return /quick.?link/i.test(row.dataset.sectionId || "");
     }
   
     function hasTiles(row) {
-      return (
-        row.querySelector(".card_box, .hover-tile, [class*='tile']") !== null
-      );
+      return row.querySelector(".card_box, .hover-tile") !== null;
     }
   
     function detectSectionType(row) {
       const html = row.innerHTML.toLowerCase();
-      if (/hero|banner|fulloverlay/.test(html))  return "hero";
-      if (/faq/.test(html))                      return "faq-accordion";
-      if (/quick.?link/.test(html))              return "quick-links";
+      if (/halfheroleft|halfheroright|parallax|fulloverlaybg|transpheadbar/.test(html)) return "hero";
+      if (/faq/.test(html))       return "faq-accordion";
+      if (/quick.?link/.test(html)) return "quick-links";
       return "generic";
     }
   
@@ -302,16 +305,31 @@
   </div>`;
     }
   
-    // ─── Hero ────────────────────────────────────────────────────
+    // ─── Hero conversion ─────────────────────────────────────────
+    // Handles both <img> heroes and CSS background-image heroes.
+    // For CSS background heroes the image URL is extracted from the
+    // class's background-image rule in the retained <style> block.
     function convertHeroRow(row) {
-      const img    = row.querySelector("img");
-      const imgSrc = img ? img.getAttribute("src") : "";
-      const imgAlt = img ? (img.getAttribute("alt") || "") : "";
   
-      // Preserve any non-structural inline styles on the img itself
-      const imgStyle = img ? buildRetainedStyle(img, true) : "width:100%; height:auto; display:block;";
+      // ── Case A: halfheroleft / halfheroright split layout ─────
+      const leftEl  = row.querySelector(".halfheroleft");
+      const rightEl = row.querySelector(".halfheroright, .gradbgright");
   
-      const btn     = row.querySelector("a.hero-library-btn, a[class*='library'], a[class*='hero']");
+      if (leftEl || rightEl) {
+        return convertSplitHero(leftEl, rightEl, row);
+      }
+  
+      // ── Case B: img-based hero ────────────────────────────────
+      const img     = row.querySelector("img");
+      const imgSrc  = img ? img.getAttribute("src") : "";
+      const imgAlt  = img ? (img.getAttribute("alt") || "") : "";
+      const imgStyle = img
+        ? (img.getAttribute("style") || "width:100%; height:auto; display:block;")
+        : "width:100%; height:auto; display:block;";
+  
+      // Find the library / CTA button — look for any anchor, prefer
+      // ones with known button classes or prominent href values
+      const btn     = findHeroButton(row);
       const btnHref = btn ? btn.getAttribute("href") : "#";
       const btnText = btn ? btn.textContent.trim() : "LIBRARY";
   
@@ -325,36 +343,55 @@
   </div>`;
     }
   
-    // ─── Build a retained style string for an element ───────────
-    // forceStructural: if true, keep structural props too (used for
-    // content-level elements like img inside hero where position is needed)
-    function buildRetainedStyle(el, forceStructural) {
-      const existing = el.getAttribute("style") || "";
-      if (forceStructural) {
-        // Return as-is — it's a content element, keep everything
-        return existing || "width:100%; height:auto; display:block;";
-      }
-      // Non-structural only
-      const declarations = existing.split(";").map(s => s.trim()).filter(Boolean);
-      const kept = declarations.filter((decl) => {
-        const prop = decl.split(":")[0].trim().toLowerCase();
-        return !STRUCTURAL_PROPS.has(prop);
-      });
-      return kept.join("; ");
+    // ── Split hero (.halfheroleft + .halfheroright) ──────────────
+    // Converts to two equal columns, preserving the background-image
+    // class on the left div and all content in the right div.
+    function convertSplitHero(leftEl, rightEl, row) {
+      // Left column — keep the class so the CSS background still works
+      const leftClass = leftEl ? (leftEl.getAttribute("class") || "halfheroleft") : "halfheroleft";
+      const leftHtml  = leftEl ? leftEl.innerHTML.trim() : "";
+  
+      // Right column — extract content, keep classes for CSS
+      const rightClass = rightEl ? (rightEl.getAttribute("class") || "") : "";
+      const rightContent = rightEl ? rightEl.innerHTML.trim() : "";
+  
+      // Find the CTA button anywhere in the right column
+      const btn     = rightEl ? findHeroButton(rightEl) : null;
+      const btnHref = btn ? btn.getAttribute("href") : "#";
+  
+      return `<div class="row">
+    <div class="column">
+      <div class="${leftClass}">${leftHtml}</div>
+    </div>
+    <div class="column">
+      <div class="${rightClass}">
+        ${rightContent}
+      </div>
+    </div>
+  </div>`;
+    }
+  
+    // ── Find the most likely CTA button in a hero ────────────────
+    // Priority: .btn-right > .hero-library-btn > any <a> with href
+    function findHeroButton(container) {
+      return (
+        container.querySelector("a.btn-right") ||
+        container.querySelector("a.hero-library-btn") ||
+        container.querySelector(".btn-rightcontainer a") ||
+        container.querySelector("a[href]")
+      );
     }
   
     // ─── FAQ ─────────────────────────────────────────────────────
     function convertFaqSection(row) {
       const items = [];
   
-      // Format A: existing .faq-item elements
       row.querySelectorAll(".faq-item").forEach((item) => {
         const q = item.querySelector(".faq-question, label, h3, h4, strong");
         const a = item.querySelector(".faq-answer, .faq-answer-inner, p");
         if (q) items.push({ question: q.textContent.trim(), answer: a ? a.innerHTML.trim() : "" });
       });
   
-      // Format B: definition list
       if (!items.length) {
         row.querySelectorAll("dt").forEach((dt) => {
           const dd = dt.nextElementSibling;
@@ -362,7 +399,6 @@
         });
       }
   
-      // Format C: table rows
       if (!items.length) {
         row.querySelectorAll("tr").forEach((tr) => {
           const cells = tr.querySelectorAll("td, th");
@@ -374,10 +410,9 @@
   
       if (!items.length) return convertGenericRow(row);
   
-      const headingEl  = row.querySelector("h2, h3, .sectionheadline");
-      const heading    = headingEl ? headingEl.textContent.trim() : "FAQ";
+      const headingEl = row.querySelector("h2, h3, .sectionheadline");
+      const heading   = headingEl ? headingEl.textContent.trim() : "FAQ";
   
-      // Retain any non-structural inline styles on the faq-item wrappers
       const faqCSS = `<style>
   .faq-item{ margin:0 0 15px 10px; padding:15px 20px; border:solid 1px #f4f4f4; border-radius:10px; }
   .faq-toggle{ position:absolute; opacity:0; pointer-events:none; }
@@ -391,15 +426,15 @@
   .faq-item:has(.faq-toggle:checked) .faq-answer-inner{ padding-top:10px; }
   </style>`;
   
-      const itemsHtml = items.map((item, i) => `    <div class="faq-item">
+      const itemsHtml = items.map((item, i) =>
+  `    <div class="faq-item">
         <input class="faq-toggle" type="checkbox" id="faq-${i + 1}">
         <label class="faq-question" for="faq-${i + 1}">${item.question}</label>
         <div class="faq-answer">
-          <div class="faq-answer-inner">
-            <p>${item.answer}</p>
-          </div>
+          <div class="faq-answer-inner"><p>${item.answer}</p></div>
         </div>
-      </div>`).join("\n");
+      </div>`
+      ).join("\n");
   
       return `${faqCSS}
   <div class="row">
@@ -426,20 +461,22 @@
         }
       });
   
+      if (!allLinks.length) return convertGenericRow(row);
+  
       const COLS_PER_ROW = 3;
       const chunks = [];
       for (let i = 0; i < allLinks.length; i += COLS_PER_ROW) {
         chunks.push(allLinks.slice(i, i + COLS_PER_ROW));
       }
   
-      const headingEl  = row.querySelector("h2, h3, .sectionheadline");
+      const headingEl   = row.querySelector("h2, h3, .sectionheadline");
       const headingHtml = headingEl
         ? `<div class="row">\n  <div class="column">\n    <h2>${headingEl.textContent.trim()}</h2>\n  </div>\n</div>\n`
         : "";
   
       const rowsHtml = chunks.map((chunk) => {
         const cols = chunk.map((link) =>
-          `  <div class="column">
+  `  <div class="column">
       ${link.label ? `<p style="text-align:center;">${link.label}</p>` : ""}
       <a href="${link.href}" style="display:block; width:75%; margin:0 auto; text-align:center; padding:10px; background:#42748d; text-decoration:none; font-weight:700; color:white;">${link.text}</a>
     </div>`
@@ -452,26 +489,39 @@
   
     // ─── Tile / Card Grid ────────────────────────────────────────
     function convertTileSection(row) {
-      const tileEls = Array.from(
-        row.querySelectorAll(".card_box, .hover-tile, .column > a")
-      );
+      // Collect tile roots — the direct <a> wrappers around card_box divs
+      const tileEls = Array.from(row.querySelectorAll(".card_box, .hover-tile"));
   
-      const uniqueTiles = tileEls.filter((el) =>
-        !tileEls.some((other) => other !== el && other.contains(el))
-      );
+      // Walk up to find the actual <a> anchor for each tile
+      const tileAnchors = tileEls.map((el) => {
+        let node = el;
+        while (node && node !== row) {
+          if (node.tagName === "A") return node;
+          node = node.parentElement;
+        }
+        return el; // fallback — no anchor found
+      });
   
-      if (!uniqueTiles.length) return convertGenericRow(row);
+      // De-duplicate
+      const seen   = new Set();
+      const unique = tileAnchors.filter((el) => {
+        if (seen.has(el)) return false;
+        seen.add(el);
+        return true;
+      });
+  
+      if (!unique.length) return convertGenericRow(row);
   
       const headingEl   = row.querySelector("h2, h3, .sectionheadline");
       const headingHtml = headingEl
         ? `<div class="row">\n  <div class="column">\n    <h2>${headingEl.textContent.trim()}</h2>\n  </div>\n</div>\n`
         : "";
   
-      const distribution = getTileDistribution(uniqueTiles.length);
+      const distribution = getTileDistribution(unique.length);
       const maxCols      = Math.max(...distribution);
-      const tileHtmlList = uniqueTiles.map((tile) => convertTileElement(tile));
+      const tileHtmlList = unique.map(convertTileElement);
   
-      const rows = [];
+      const rows    = [];
       let tileIndex = 0;
   
       distribution.forEach((colCount) => {
@@ -491,47 +541,48 @@
     }
   
     function getTileDistribution(total) {
-      if (total <= 4)  return [total];
-      if (total === 5) return [3, 2];
-      if (total === 6) return [3, 3];
-      if (total === 7) return [4, 3];
-      if (total === 8) return [4, 4];
-      if (total === 9) return [3, 3, 3];
+      if (total <= 4)   return [total];
+      if (total === 5)  return [3, 2];
+      if (total === 6)  return [3, 3];
+      if (total === 7)  return [4, 3];
+      if (total === 8)  return [4, 4];
+      if (total === 9)  return [3, 3, 3];
       if (total === 10) return [4, 3, 3];
       if (total === 11) return [4, 4, 3];
       if (total === 12) return [4, 4, 4];
       const rows = [];
-      let remaining = total;
-      while (remaining > 0) { rows.push(Math.min(4, remaining)); remaining -= 4; }
+      let rem = total;
+      while (rem > 0) { rows.push(Math.min(4, rem)); rem -= 4; }
       return rows;
     }
   
     function convertTileElement(el) {
-      const anchor  = el.tagName === "A" ? el : el.querySelector("a");
-      const href    = anchor ? anchor.getAttribute("href") : "#";
+      // el is either the <a> itself or a .card_box div
+      const isAnchor = el.tagName === "A";
+      const href     = isAnchor
+        ? el.getAttribute("href")
+        : (el.querySelector("a") ? el.querySelector("a").getAttribute("href") : "#");
   
-      // Get inner content
-      let innerHtml = el.tagName === "A"
-        ? el.innerHTML
-        : anchor ? anchor.innerHTML : el.innerHTML;
+      // Inner content — if el is the <a>, use its children directly
+      // If el is a card_box, use its own outerHTML as the inner content
+      let innerHtml = isAnchor ? el.innerHTML : el.outerHTML;
   
-      // Clean legacy classes inside content but preserve all inline styles
+      // Clean legacy classes inside but preserve all inline styles
       const tmp = document.createElement("div");
       tmp.innerHTML = innerHtml;
       ["card_box", "boxhover", "featured", "card_box_wrap"].forEach((cls) => {
         tmp.querySelectorAll(`.${cls}`).forEach((node) => {
           node.classList.remove(cls);
           if (node.classList.length === 0) node.removeAttribute("class");
-          // ↑ inline styles on these nodes are untouched
         });
       });
   
-      return `    <a class="hover-tile" href="${href}" style="text-decoration:none; margin:10px; display:inline-block; transition:all .3s ease-in-out;">
+      return `    <a class="hover-tile" href="${href || "#"}" style="text-decoration:none; margin:10px; display:inline-block; transition:all .3s ease-in-out;">
   ${tmp.innerHTML.trim()}
       </a>`;
     }
   
-    // ─── Generic row conversion ──────────────────────────────────
+    // ─── Generic row ─────────────────────────────────────────────
     function convertGenericRow(row) {
       const columns = Array.from(row.querySelectorAll(":scope > .column"));
   
@@ -546,15 +597,24 @@
       }
   
       const colsHtml = columns.map((col) => {
-        // Preserve non-structural inline styles on the column div itself
-        const retainedStyle = buildRetainedStyle(col, false);
-        const styleAttr     = retainedStyle ? ` style="${retainedStyle}"` : "";
-  
-        // Reset to only "column" class — layout modifiers removed
+        const retained  = buildRetainedStyle(col);
+        const styleAttr = retained ? ` style="${retained}"` : "";
         return `  <div class="column"${styleAttr}>\n    ${col.innerHTML.trim()}\n  </div>`;
       }).join("\n");
   
       return `<div class="row">\n${colsHtml}\n</div>`;
+    }
+  
+    function buildRetainedStyle(el) {
+      const existing = el.getAttribute("style") || "";
+      const kept = existing.split(";")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .filter((decl) => {
+          const prop = decl.split(":")[0].trim().toLowerCase();
+          return !STRUCTURAL_PROPS.has(prop);
+        });
+      return kept.join("; ");
     }
   
     // ─── Expose ──────────────────────────────────────────────────
