@@ -31,34 +31,30 @@
       </div>
     </div>
     <div class="app-header__right">
-      <!-- Mode tabs -->
-      <div class="mode-tabs" role="tablist">
-        <button
-          id="tabGenerator"
-          class="mode-tab mode-tab--active"
-          type="button"
-          role="tab"
-          aria-selected="true"
-          aria-controls="modeGenerator"
-        >Page Generator</button>
-        <button
-          id="tabConverter"
-          class="mode-tab"
-          type="button"
-          role="tab"
-          aria-selected="false"
-          aria-controls="modeConverter"
-        >Legacy Converter</button>
-      </div>
-      <!-- Copy button — shown only in generator mode -->
+      <!--
+        Generator mode  → shows "Legacy Converter" button + "Copy HTML"
+        Converter mode  → shows "Page Generator" button only
+        Switching modes retains all work in both panels
+      -->
+      <button
+        id="btnSwitchToConverter"
+        class="btn"
+        type="button"
+      >Legacy Converter</button>
+      <button
+        id="btnSwitchToGenerator"
+        class="btn"
+        type="button"
+        style="display:none;"
+      >Page Generator</button>
       <button id="btnCopy" class="btn btn-primary" type="button">Copy HTML</button>
     </div>
   </header>
 
   <!-- ============================================================
-       MODE: GENERATOR
+       MODE: GENERATOR (default)
   ============================================================ -->
-  <main id="modeGenerator" class="app app-grid" role="tabpanel" aria-labelledby="tabGenerator">
+  <main id="modeGenerator" class="app app-grid" role="tabpanel">
 
     <!-- ── Left: Selector ─────────────────────────────────────── -->
     <section class="panel panel--selector">
@@ -165,20 +161,21 @@
   </main>
 
   <!-- ============================================================
-       MODE: LEGACY CONVERTER
+       MODE: LEGACY CONVERTER (hidden by default)
   ============================================================ -->
   <main
     id="modeConverter"
     class="app app-grid converter-grid"
     role="tabpanel"
-    aria-labelledby="tabConverter"
     style="display:none;"
   >
 
     <!-- ── Left: Input ────────────────────────────────────────── -->
     <section class="panel panel--selector converter-input-panel">
       <h2>Legacy Page Input</h2>
-      <div class="hint" style="margin-bottom:12px;">Paste the old-format HTML below, then click Convert.</div>
+      <div class="hint" style="margin-bottom:12px;">
+        Paste the old-format HTML below, then click Convert.
+      </div>
       <textarea
         id="legacyInput"
         class="output converter-textarea"
@@ -219,42 +216,46 @@
   <script src="./assets/js/app.js"></script>
   <script src="./assets/js/converter.js"></script>
   <script>
-    /* ── Tab switching ───────────────────────────────────────── */
     (function () {
-      const tabGen   = document.getElementById("tabGenerator");
-      const tabCon   = document.getElementById("tabConverter");
-      const modeGen  = document.getElementById("modeGenerator");
-      const modeCon  = document.getElementById("modeConverter");
-      const btnCopy  = document.getElementById("btnCopy");
 
-      function activateTab(tab) {
-        const isGenerator = tab === tabGen;
+      /* ── Elements ──────────────────────────────────────────── */
+      const btnToConverter  = document.getElementById("btnSwitchToConverter");
+      const btnToGenerator  = document.getElementById("btnSwitchToGenerator");
+      const btnCopy         = document.getElementById("btnCopy");
+      const modeGen         = document.getElementById("modeGenerator");
+      const modeCon         = document.getElementById("modeConverter");
 
-        // Panels
-        modeGen.style.display = isGenerator ? "" : "none";
-        modeCon.style.display = isGenerator ? "none" : "";
-
-        // Tab states
-        tabGen.classList.toggle("mode-tab--active", isGenerator);
-        tabCon.classList.toggle("mode-tab--active", !isGenerator);
-        tabGen.setAttribute("aria-selected", isGenerator);
-        tabCon.setAttribute("aria-selected", !isGenerator);
-
-        // Header copy button only relevant in generator mode
-        btnCopy.style.display = isGenerator ? "" : "none";
-      }
-
-      tabGen.addEventListener("click", function () { activateTab(tabGen); });
-      tabCon.addEventListener("click", function () { activateTab(tabCon); });
-
-      /* ── Converter actions ─────────────────────────────────── */
       const btnConvert      = document.getElementById("btnConvert");
-      const btnClear        = document.getElementById("btnClearConverter");
+      const btnClearConv    = document.getElementById("btnClearConverter");
       const btnCopyConv     = document.getElementById("btnCopyConverted");
       const inputArea       = document.getElementById("legacyInput");
       const outputArea      = document.getElementById("convertedOutput");
       const statusEl        = document.getElementById("converterStatus");
 
+      /* ── Mode switching ────────────────────────────────────── */
+      // No state is cleared on switch — both panels are simply
+      // shown or hidden, so all work is retained automatically.
+
+      function showGenerator() {
+        modeGen.style.display         = "";
+        modeCon.style.display         = "none";
+        btnToConverter.style.display  = "";
+        btnToGenerator.style.display  = "none";
+        btnCopy.style.display         = "";
+      }
+
+      function showConverter() {
+        modeGen.style.display         = "none";
+        modeCon.style.display         = "";
+        btnToConverter.style.display  = "none";
+        btnToGenerator.style.display  = "";
+        btnCopy.style.display         = "none";
+      }
+
+      btnToConverter.addEventListener("click", showConverter);
+      btnToGenerator.addEventListener("click", showGenerator);
+
+      /* ── Converter actions ─────────────────────────────────── */
       btnConvert.addEventListener("click", function () {
         const raw = inputArea.value.trim();
         if (!raw) {
@@ -266,8 +267,7 @@
           return;
         }
         try {
-          const result = window.convertLegacyPage(raw);
-          outputArea.value = result;
+          outputArea.value     = window.convertLegacyPage(raw);
           statusEl.textContent = "✓ Conversion complete.";
         } catch (err) {
           statusEl.textContent = "✗ Error: " + err.message;
@@ -275,20 +275,21 @@
         }
       });
 
-      btnClear.addEventListener("click", function () {
-        inputArea.value  = "";
-        outputArea.value = "";
-        statusEl.textContent = "";
+      btnClearConv.addEventListener("click", function () {
+        inputArea.value       = "";
+        outputArea.value      = "";
+        statusEl.textContent  = "";
       });
 
       btnCopyConv.addEventListener("click", function () {
         if (!outputArea.value) return;
         navigator.clipboard.writeText(outputArea.value).then(function () {
-          const orig = btnCopyConv.textContent;
+          const orig            = btnCopyConv.textContent;
           btnCopyConv.textContent = "✓ Copied!";
           setTimeout(function () { btnCopyConv.textContent = orig; }, 1800);
         });
       });
+
     })();
   </script>
 
