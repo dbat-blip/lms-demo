@@ -184,30 +184,45 @@
   
     // ─── Strip legacy layout classes ────────────────────────────
     const LEGACY_CLASSES = [
-      "clearfix","full","center",
-      "s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12",
-      "l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12",
-      "m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12",
-      "blockgrid","third","fourth","half","two-third",
-      "boxhover","featured","card_box_wrap","col",
-      // Old page-builder typography helpers — layout-only, not visual
-      "size-80","size-48","size-21",
-      "is-title1-48","is-title-lite","is-lite",
-      // Old button classes — visual styles retained via inline/css,
-      // but the class names themselves are legacy
-      "is-btn","is-btn-ghost1","is-btn-ghost2",
-      "is-upper","is-rounded-30","is-btn-small",
-      // Old layout display helpers
-      "display",
-    ];
+        "clearfix","full","center",
+        "s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12",
+        "l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12",
+        "m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12",
+        "blockgrid","third","fourth","half","two-third",
+        "boxhover","featured","card_box_wrap","col",
+        // ↓ REMOVED: size-*, is-title*, is-btn*, is-upper, is-rounded*, is-lite, display
+        // These are visual/typography classes — must be retained not stripped
+      ];
   
-    function cleanLegacyClasses(root) {
-      root.querySelectorAll("*").forEach((el) => {
-        LEGACY_CLASSES.forEach((cls) => el.classList.remove(cls));
-        if (el.classList.length === 0) el.removeAttribute("class");
-        stripStructuralInlineStyle(el);
-      });
-    }
+      function cleanLegacyClasses(root) {
+        root.querySelectorAll("*").forEach((el) => {
+      
+          // ── Translate size-N classes to inline font-size ─────────
+          // Must run BEFORE stripping, so we can read the class first
+          const sizeClass = Array.from(el.classList)
+            .find((c) => /^size-\d+$/.test(c));
+      
+          if (sizeClass) {
+            const px = parseInt(sizeClass.replace("size-", ""), 10);
+            if (!isNaN(px)) {
+              const existing = el.getAttribute("style") || "";
+              // Only set if not already overridden
+              if (!existing.includes("font-size")) {
+                el.setAttribute(
+                  "style",
+                  (existing ? existing.trimEnd().replace(/;*$/, "") + "; " : "") +
+                  `font-size:${px}px;`
+                );
+              }
+            }
+            el.classList.remove(sizeClass);
+          }
+      
+          LEGACY_CLASSES.forEach((cls) => el.classList.remove(cls));
+          if (el.classList.length === 0) el.removeAttribute("class");
+          stripStructuralInlineStyle(el);
+        });
+      }
   
     // ─── Section detection ──────────────────────────────────────
     function extractSections(body) {
