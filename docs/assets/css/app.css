@@ -301,7 +301,7 @@
      ============================================================ */
   .btn {
     border: 1px solid rgba(0, 0, 0, .15);
-    background: #ffffff;
+    background: #ffffff6e;
     color: var(--ui-text);
     padding: 8px 14px;
     border-radius: var(--radius-sm);
